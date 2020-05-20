@@ -1,0 +1,25 @@
+program IntegracaoApp;
+
+uses
+  Vcl.Forms,
+  uPrincipal in 'uPrincipal.pas' {frmPrincipal},
+  uToken in 'uToken.pas',
+  uDAOProduto in 'uDAOProduto.pas',
+  uProduto in 'uProduto.pas',
+  uDMConnection in 'uDMConnection.pas' {DMConnection: TDataModule},
+  uUtilPadrao in 'uUtilPadrao.pas',
+  uGrupo in 'uGrupo.pas',
+  uDAOGrupo in 'uDAOGrupo.pas',
+  ConfigurarRest in 'ConfigurarRest.pas',
+  uSubGrupo in 'uSubGrupo.pas',
+  uDAOSubGrupo in 'uDAOSubGrupo.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.Run;
+
+end.
