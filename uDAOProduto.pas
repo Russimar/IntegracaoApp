@@ -105,7 +105,7 @@ var
   ja : TJSONArray;
   Produto: TJsonObject;
   ListaProduto : TObjectList<TProduto>;
-  I: Integer;
+  i: Integer;
 begin
   FConfigurarRest := TConfiguraRest.create;
   if FEmpresa <> EmptyStr then
@@ -120,7 +120,7 @@ begin
   end;
   Produto := TJSONObject.Create;
   ListaProduto := TObjectList<TProduto>.Create;
-  for I := 0 to Pred(ja.Count) do
+  for i := 0 to Pred(ja.Count) do
   begin
     Produto := ja.Get(i) as TJSONObject;
     aProduto := TProduto.Create;

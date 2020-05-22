@@ -24,7 +24,6 @@ object frmPrincipal: TfrmPrincipal
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 381
     object lblHost: TLabel
       Left = 20
       Top = 21
@@ -75,17 +74,16 @@ object frmPrincipal: TfrmPrincipal
     Height = 418
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 381
     object gridDados: TStringGrid
       Left = 1
       Top = 42
       Width = 405
       Height = 288
       Align = alClient
+      DefaultColWidth = 100
       FixedCols = 0
       FixedRows = 0
       TabOrder = 0
-      ExplicitWidth = 379
       RowHeights = (
         24
         24
@@ -102,7 +100,6 @@ object frmPrincipal: TfrmPrincipal
       Color = clMoneyGreen
       ParentBackground = False
       TabOrder = 1
-      ExplicitWidth = 379
       object Gauge1: TGauge
         Left = 1
         Top = 58
@@ -176,6 +173,15 @@ object frmPrincipal: TfrmPrincipal
         TabOrder = 6
         OnClick = btnEnviarImagemClick
       end
+      object btnConsultaPedido: TBitBtn
+        Left = 299
+        Top = 28
+        Width = 101
+        Height = 29
+        Caption = 'Consulta Pedido'
+        TabOrder = 7
+        OnClick = btnConsultaPedidoClick
+      end
     end
     object pnlDados: TPanel
       Left = 1
@@ -186,7 +192,6 @@ object frmPrincipal: TfrmPrincipal
       Color = clMoneyGreen
       ParentBackground = False
       TabOrder = 2
-      ExplicitWidth = 379
       object lblDocumento: TLabel
         Left = 199
         Top = 22

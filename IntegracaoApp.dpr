@@ -12,7 +12,11 @@ uses
   uDAOGrupo in 'uDAOGrupo.pas',
   ConfigurarRest in 'ConfigurarRest.pas',
   uSubGrupo in 'uSubGrupo.pas',
-  uDAOSubGrupo in 'uDAOSubGrupo.pas';
+  uDAOSubGrupo in 'uDAOSubGrupo.pas',
+  uPedido in 'uPedido.pas',
+  uDaoPedido in 'uDaoPedido.pas',
+  uPedidoItens in 'uPedidoItens.pas',
+  uDaoPedidoItens in 'uDaoPedidoItens.pas';
 
 {$R *.res}
 

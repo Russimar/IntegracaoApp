@@ -34,6 +34,7 @@ type
     edtProduto: TEdit;
     Gauge1: TGauge;
     btnEnviarImagem: TBitBtn;
+    btnConsultaPedido: TBitBtn;
     procedure btnConsultaProdutoClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -43,6 +44,7 @@ type
     procedure btnGravarSubGrupoClick(Sender: TObject);
     procedure BitBtn3Click(Sender: TObject);
     procedure btnEnviarImagemClick(Sender: TObject);
+    procedure btnConsultaPedidoClick(Sender: TObject);
   private
     { Private declarations }
     fDMConnection : TDMConnection;
@@ -61,7 +63,8 @@ implementation
 
 uses
   uToken, uDAOProduto, uProduto, System.Generics.Collections, System.IniFiles,
-  uUtilPadrao, uDAOGrupo, uGrupo, uDaoSubGrupo, uSubGrupo, MaskUtils;
+  uUtilPadrao, uDAOGrupo, uGrupo, uDaoSubGrupo, uSubGrupo, MaskUtils, uDaoPedido,
+  uPedido, uPedidoItens, uDaoPedidoItens;
 
 {$R *.dfm}
 { TForm1 }
@@ -132,6 +135,60 @@ begin
     end;
     Inc(lin);
 
+  end;
+
+end;
+
+procedure TfrmPrincipal.btnConsultaPedidoClick(Sender: TObject);
+var
+  aToken: String;
+  aDaoPedido : TDaoPedido;
+  aPedido : TPedido;
+  ListaPedido : TObjectList<TPedido>;
+  col, lin, i :  Integer;
+begin
+  aToken := TToken
+            .New
+            .BaseURL(Rota)
+            .Documento(Documento)
+            .GerarToken;
+  ListaPedido := TDaoPedido
+                   .New
+                   .BaseURL(Rota + '/pedido')
+                   .CodigoEmpresa('9')
+                   .GetPedido(aToken,'9');
+
+  gridDados.RowCount := ListaPedido.Count;
+  Gauge1.MinValue := 0;
+  Gauge1.MaxValue := ListaPedido.Count;
+  i := 1; lin := 0;
+  for aPedido in ListaPedido do
+  begin
+    Gauge1.AddProgress(1);
+    Gauge1.Update;
+    col := 0;
+    gridDados.Objects[col,lin] := aPedido;
+    gridDados.Cells[col,lin] := IntToStr(aPedido.codigoPedido);
+    inc(col);
+    gridDados.Cells[col,lin] := aPedido.clienteNome;
+    inc(col);
+    gridDados.Cells[col,lin] := FormatFloat('0.00',aPedido.valor);
+    inc(col);
+    gridDados.Cells[col,lin] := FormatFloat('0.00',aPedido.qtdeItens);
+    inc(col);
+    gridDados.Cells[col,lin] := FormatDateTime('dd.mm.yyyy mm:ss',aPedido.dataEmissao);
+    Inc(i);
+    if i = 100 then
+    begin
+      Application.ProcessMessages;
+      i := 0;
+    end;
+    Inc(lin);
+    TDaoPedidoItens
+      .New
+      .CodigoPedido(IntToStr(aPedido.codigoPedido))
+      .BaseURL(Rota + '/pedidoitem')
+      .GetPedidoItens(aToken,'9');
   end;
 
 end;
