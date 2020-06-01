@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.Samples.Gauges, Vcl.Grids, Vcl.ExtCtrls;
+  FireDAC.Comp.Client, Vcl.Samples.Gauges, Vcl.Grids, Vcl.ExtCtrls, uEmpresa;
 
 type
   TfrmPrincipal = class(TForm)
@@ -20,38 +20,23 @@ type
     Label4: TLabel;
     edtPorta: TEdit;
     pnlPrincipal: TPanel;
-    gridDados: TStringGrid;
     pnlBotton: TPanel;
-    btnConsultaProduto: TBitBtn;
-    btnGravarProduto: TBitBtn;
-    btnGravarSubGrupo: TBitBtn;
-    BitBtn3: TBitBtn;
-    btnGravarGrupo: TBitBtn;
-    btnBuscarGrupo: TBitBtn;
     pnlDados: TPanel;
     lblDocumento: TLabel;
-    Label2: TLabel;
-    edtProduto: TEdit;
     Gauge1: TGauge;
-    btnEnviarImagem: TBitBtn;
-    btnConsultaPedido: TBitBtn;
-    procedure btnConsultaProdutoClick(Sender: TObject);
+    lblCodigo: TLabel;
+    lblMensagem: TLabel;
+    Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure btnGravarProdutoClick(Sender: TObject);
-    procedure btnBuscarGrupoClick(Sender: TObject);
-    procedure btnGravarGrupoClick(Sender: TObject);
-    procedure btnGravarSubGrupoClick(Sender: TObject);
-    procedure BitBtn3Click(Sender: TObject);
-    procedure btnEnviarImagemClick(Sender: TObject);
-    procedure btnConsultaPedidoClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
     fDMConnection : TDMConnection;
-    Consulta : TFDQuery;
-    Documento : String;
-    Rota : string;
-    procedure ConfiguraConexao;
+    procedure evMensagem(Msg : String);
+    procedure evProgressao(Posicao : Integer);
+    procedure evNumeroMaximo(NumMaximo : Integer);
   public
     { Public declarations }
   end;
@@ -69,363 +54,74 @@ uses
 {$R *.dfm}
 { TForm1 }
 
-procedure TfrmPrincipal.BitBtn3Click(Sender: TObject);
-var
-  aToken : String;
-  ListaSubGrupo : TObjectList<TSubGrupo>;
-  aSubGrupo : TSubGrupo;
+procedure TfrmPrincipal.BitBtn1Click(Sender: TObject);
 begin
-  aToken := TToken
-            .New
-            .BaseURL(Rota)
-            .Documento(Documento)
-            .GerarToken;
-
-  ListaSubGrupo := TDaoSubGrupo
-                 .New
-                 .BaseURL(rota + '/allsubgrupos')
-                 .CodigoEmpresa('9')
-                 .CodigoSubGrupo(edtProduto.Text)
-                 .Status('A')
-                 .GetSubGrupo(aToken,'9');
-  for aSubGrupo in ListaSubGrupo do
-  begin
-  end;
-
-
+  fDMConnection.GetCodigoEmpresa;
 end;
 
-procedure TfrmPrincipal.btnBuscarGrupoClick(Sender: TObject);
-var
-  aToken : String;
-  ListaGrupo : TObjectList<TGrupo>;
-  aGrupo : TGrupo;
-  col, lin, i : Integer;
+procedure TfrmPrincipal.evMensagem(Msg: String);
 begin
-  aToken := TToken
-            .New
-            .BaseURL(Rota)
-            .Documento(Documento)
-            .GerarToken;
+  lblMensagem.Caption := Msg;
+  lblMensagem.Update;
+end;
 
-  ListaGrupo := TDaoGrupo
-                 .New
-                 .BaseURL(Rota + '/grupos/A')
-                 .CodigoEmpresa('9')
-                 .CodigoGrupo(edtProduto.Text)
-                 .GetGrupo(aToken,'9');
+procedure TfrmPrincipal.evNumeroMaximo(NumMaximo: Integer);
+begin
   Gauge1.MinValue := 0;
-  Gauge1.MaxValue := ListaGrupo.Count;
-  for aGrupo in ListaGrupo do
-  begin
-    Gauge1.AddProgress(1);
-    Gauge1.Update;
-    col := 0;
-    gridDados.Objects[col,lin] := aGrupo;
-    gridDados.Cells[col,lin] := IntToStr(aGrupo.Codigo);
-    inc(col);
-    gridDados.Cells[col,lin] := aGrupo.descricao;
-    inc(col);
-    gridDados.Cells[col,lin] := aGrupo.CodigoEmpresa;
-    Inc(i);
-    if i = 100 then
-    begin
-      Application.ProcessMessages;
-      i := 0;
-    end;
-    Inc(lin);
-
-  end;
-
+  Gauge1.MaxValue := NumMaximo;
 end;
 
-procedure TfrmPrincipal.btnConsultaPedidoClick(Sender: TObject);
-var
-  aToken: String;
-  aDaoPedido : TDaoPedido;
-  aPedido : TPedido;
-  ListaPedido : TObjectList<TPedido>;
-  col, lin, i :  Integer;
+procedure TfrmPrincipal.evProgressao(Posicao: Integer);
 begin
-  aToken := TToken
-            .New
-            .BaseURL(Rota)
-            .Documento(Documento)
-            .GerarToken;
-  ListaPedido := TDaoPedido
-                   .New
-                   .BaseURL(Rota + '/pedido')
-                   .CodigoEmpresa('9')
-                   .GetPedido(aToken,'9');
-
-  gridDados.RowCount := ListaPedido.Count;
-  Gauge1.MinValue := 0;
-  Gauge1.MaxValue := ListaPedido.Count;
-  i := 1; lin := 0;
-  for aPedido in ListaPedido do
-  begin
-    Gauge1.AddProgress(1);
-    Gauge1.Update;
-    col := 0;
-    gridDados.Objects[col,lin] := aPedido;
-    gridDados.Cells[col,lin] := IntToStr(aPedido.codigoPedido);
-    inc(col);
-    gridDados.Cells[col,lin] := aPedido.clienteNome;
-    inc(col);
-    gridDados.Cells[col,lin] := FormatFloat('0.00',aPedido.valor);
-    inc(col);
-    gridDados.Cells[col,lin] := FormatFloat('0.00',aPedido.qtdeItens);
-    inc(col);
-    gridDados.Cells[col,lin] := FormatDateTime('dd.mm.yyyy mm:ss',aPedido.dataEmissao);
-    Inc(i);
-    if i = 100 then
-    begin
-      Application.ProcessMessages;
-      i := 0;
-    end;
-    Inc(lin);
-    TDaoPedidoItens
-      .New
-      .CodigoPedido(IntToStr(aPedido.codigoPedido))
-      .BaseURL(Rota + '/pedidoitem')
-      .GetPedidoItens(aToken,'9');
-  end;
-
-end;
-
-procedure TfrmPrincipal.btnConsultaProdutoClick(Sender: TObject);
-var
-  aToken: String;
-  aDaoProduto : TDaoProduto;
-  aProduto : TProduto;
-  ListaProduto : TObjectList<TProduto>;
-  col, lin, i :  Integer;
-begin
-  aToken := TToken
-            .New
-            .BaseURL(Rota)
-            .Documento(Documento)
-            .GerarToken;
-  ListaProduto := TDaoProduto
-                   .New
-                   .BaseURL(Rota + '/produtos')
-                   .CodigoEmpresa('9')
-                   .CodigoProduto(edtProduto.Text)
-                   .GetProduto(aToken,'9');
-
-  gridDados.RowCount := ListaProduto.Count;
-  Gauge1.MinValue := 0;
-  Gauge1.MaxValue := ListaProduto.Count;
-  i := 1; lin := 0;
-  for aProduto in ListaProduto do
-  begin
-    Gauge1.AddProgress(1);
-    Gauge1.Update;
-    col := 0;
-    gridDados.Objects[col,lin] := aProduto;
-    gridDados.Cells[col,lin] := IntToStr(aProduto.codigoProduto);
-    inc(col);
-    gridDados.Cells[col,lin] := aProduto.descricao;
-    inc(col);
-    gridDados.Cells[col,lin] := FormatFloat('0.00',aProduto.preco);
-    inc(col);
-    gridDados.Cells[col,lin] := aProduto.unidade;
-    Inc(i);
-    if i = 100 then
-    begin
-      Application.ProcessMessages;
-      i := 0;
-    end;
-    Inc(lin);
-  end;
-
-end;
-
-procedure TfrmPrincipal.btnEnviarImagemClick(Sender: TObject);
-var
-  aToken : String;
-  Foto, x : String;
-  CodigoProduto : Integer;
-
-begin
-  aToken := TToken
-            .New
-            .BaseURL(Rota)
-            .Documento(Documento)
-            .GerarToken;
-
-
-  CodigoProduto := 3036;
-  Foto := 'C:\Easy2Solutions\Gestao\Imagem\Fruki.jpg';
-  x := TDaoProduto
-        .New
-        .BaseURL(Rota + '/file/' + IntToStr(CodigoProduto))
-        .CaminhoArquivo(Foto)
-        .PostProdutoImagem(aToken);
-  ShowMessage(x);
-end;
-
-procedure TfrmPrincipal.btnGravarGrupoClick(Sender: TObject);
-var
-  aToken : string;
-  aGrupo : TGrupo;
-begin
-  aToken := TToken
-            .New
-            .BaseURL(Rota)
-            .Documento(Documento)
-            .GerarToken;
-
-  with fDMConnection do
-  begin
-    qryGrupo.Close;
-    qryGrupo.Open;
-    qryGrupo.First;
-    while not qryGrupo.Eof do
-    begin
-      aGrupo := TGrupo.Create;
-      aGrupo.Codigo := qryGrupo.FieldByName('GRUPICOD').Value;
-      aGrupo.descricao := qryGrupo.FieldByName('GRUPA60DESCR').Value;
-      aGrupo.Status := qryGrupo.FieldByName('Status').AsString;
-      TDaoGrupo
-       .New
-       .BaseURL(Rota + '/grupos')
-       .PostGrupo(aGrupo,aToken);
-      FreeAndNil(aGrupo);
-      qryGrupo.Next;
-    end;
-  end;
-
-end;
-
-procedure TfrmPrincipal.btnGravarProdutoClick(Sender: TObject);
-var
-  aToken : string;
-  aProduto : TProduto;
-begin
-  aToken := TToken
-            .New
-            .BaseURL(Rota)
-            .Documento(Documento)
-            .GerarToken;
-
-  with fDMConnection do
-  begin
-    qryProdutos.Close;
-    qryProdutos.Open;
-    qryProdutos.FetchAll;
-    Gauge1.MinValue := 0;
-    Gauge1.MaxValue := qryProdutos.RecordCount;
-    qryProdutos.First;
-    while not qryProdutos.Eof do
-    begin
-      Gauge1.Progress := Gauge1.Progress + 1;
-      Gauge1.Update;
-      aProduto := TProduto.Create;
-      aProduto.codigoProduto := qryProdutos.FieldByName('PRODICOD').Value;
-      aProduto.descricao := StringReplace(qryProdutos.FieldByName('PRODA30ADESCRREDUZ').Value,'''','',[rfReplaceAll]);
-      aProduto.preco := qryProdutos.FieldByName('PRODN3VLRVENDA').Value;
-      aProduto.marca := qryProdutos.FieldByName('MARCA60DESCR').AsString;
-      aProduto.grupo := qryProdutos.FieldByName('GRUPICOD').AsInteger;
-      aProduto.subGrupo := qryProdutos.FieldByName('SUBGICOD').AsString;
-      aProduto.unidade := qryProdutos.FieldByName('UNIDA5DESCR').AsString;
-      TDaoProduto
-       .New
-       .BaseURL(Rota + '/produtos')
-       .PostProduto(aProduto,aToken);
-      FreeAndNil(aProduto);
-//      Application.ProcessMessages;
-      qryProdutos.Next;
-    end;
-  end;
-
-end;
-
-procedure TfrmPrincipal.btnGravarSubGrupoClick(Sender: TObject);
-var
-  aToken : string;
-  aSubGrupo : TSubGrupo;
-begin
-  aToken := TToken
-            .New
-            .BaseURL(Rota)
-            .Documento(Documento)
-            .GerarToken;
-
-  with fDMConnection do
-  begin
-    qrySubGrupo.Close;
-    qrySubGrupo.Open;
-    qrySubGrupo.First;
-    while not qrySubGrupo.Eof do
-    begin
-      aSubGrupo := TSubGrupo.Create;
-      aSubGrupo.codigoGrupo := qrySubGrupo.FieldByName('GRUPICOD').Value;
-      aSubGrupo.codigo := qrySubGrupo.FieldByName('SUBGICOD').Value;
-      aSubGrupo.descricao := qrySubGrupo.FieldByName('SUBGA60DESCR').Value;
-      aSubGrupo.Status := qrySubGrupo.FieldByName('Status').AsString;
-      TDaoSubGrupo
-       .New
-       .BaseURL(Rota + '/subgrupo')
-       .PostSubGrupo(aSubGrupo,aToken);
-      FreeAndNil(aSubGrupo);
-      qrySubGrupo.Next;
-    end;
-  end;
-
-end;
-
-procedure TfrmPrincipal.ConfiguraConexao;
-var
-  ArquivoIni, BancoDados, UserName, PassWord : String;
-  LocalServer : Integer;
-  Configuracoes : TIniFile;
-begin
-  ArquivoIni := ExtractFilePath(Application.ExeName) + 'Parceiro.ini';
-  if not FileExists(ArquivoIni) then
-  begin
-    MessageDlg('Arquivo Parceiro.ini não encontrado!', mtInformation,[mbOK],0);
-    Exit;
-  end;
-
-  Configuracoes := TIniFile.Create(ArquivoINI);
-  try
-     BancoDados := Configuracoes.ReadString('PDV', 'Database_PDV', BancoDados);
-     UserName   := Configuracoes.ReadString('PDV', 'UserName',   UserName);
-     PassWord   := Configuracoes.ReadString('PDV', 'PassWord', '');
-  finally
-    Configuracoes.Free;
-  end;
-
-  with fDMConnection do
-  begin
-    FDConnection.Connected := False;
-    FDConnection.Params.Clear;
-    FDConnection.DriverName := 'FB';
-    FDConnection.Params.Values['DriveId'] := 'FB';
-    FDConnection.Params.Values['DataBase'] := BancoDados;
-    FDConnection.Params.Values['User_Name'] := UserName;
-    FDConnection.Params.Values['Password'] := PassWord;
-  end;
+  Gauge1.Progress := Posicao;
+  Gauge1.Update;
 end;
 
 procedure TfrmPrincipal.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  fDMConnection.desconectar;
   FreeAndNil(fDMConnection);
 end;
 
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
-//  ReportMemoryLeaksOnShutdown := DebugHook <> 0;
+  ReportMemoryLeaksOnShutdown := DebugHook <> 0;
   fDMConnection := TDMConnection.Create(nil);
-  ConfiguraConexao;
+  fDMConnection.ConfiguraConexao;
   if fDMConnection.conectar then
   begin
-    Documento := SQLLocate('EMPRESA','EMPRICOD','EMPRA14CGC','1');
+    if not fDMConnection.Abre_Empresa then
+    begin
+      Application.Terminate;
+      Exit;
+    end;
+    edtHost.Text := fDMConnection.url;
+    edtPorta.Text := fDMConnection.porta;
+    fDMConnection.Obtem_Token;
+    fDMConnection.Obtem_Codigo_Empresa;
   end;
-  Rota := edtHost.Text + ':' + edtPorta.Text;
-  lblDocumento.Caption :=  lblDocumento.Caption + ' ' +  FormatMaskText('99.999.999/9999-99;0',Documento);
+  lblDocumento.Caption :=  lblDocumento.Caption + ' ' +  FormatMaskText('99.999.999/9999-99;0',fDMConnection.Documento);
+  lblCodigo.Caption := lblCodigo.Caption + ' ' + fDMConnection.CodigoEmpresa;
+  fDMConnection.evMsg := evMensagem;
+  fDMConnection.evProgresso := evProgressao;
+  fDMConnection.evNumMax := evNumeroMaximo;
+end;
+
+procedure TfrmPrincipal.Timer1Timer(Sender: TObject);
+begin
+  Timer1.Enabled := False;
+  try
+    with fDMConnection do
+    begin
+      Enviar_Grupo;
+      Enviar_SubGrupo;
+      Enviar_Produto;
+      Enviar_Imagem;
+      GetPedido;
+    end;
+
+  finally
+    Timer1.Enabled := True;
+  end;
 end;
 
 end.

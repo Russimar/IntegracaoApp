@@ -10,9 +10,11 @@ type
   ['{BFF38762-CFEF-48A5-BF38-50B86D5E43CF}']
     function CodigoPedido(const aValue: string): IDaoPedidoItens; overload;
     function CodigoPedido: string; overload;
+    function CodigoEmpresa(const aValue: string): IDaoPedidoItens; overload;
+    function CodigoEmpresa: string; overload;
     function BaseURL(const Value: string): IDaoPedidoItens; overload;
     function BaseURL: String; overload;
-    function GetPedidoItens(aToken, aEmpresa: String): TObjectList<TPedidoItens>;
+    function GetPedidoItens(aToken: String): TObjectList<TPedidoItens>;
     function PostPedido(aValue: TPedidoItens; aToken: String): String;
   end;
 
@@ -20,13 +22,16 @@ type
     private
       FCodigoPedido : String;
       FBaseURL : String;
+      FCodigoEmpresa : String;
     public
       class function New : IDaoPedidoItens;
       function CodigoPedido(const aValue: string): IDaoPedidoItens; overload;
       function CodigoPedido: string; overload;
+      function CodigoEmpresa(const aValue: string): IDaoPedidoItens; overload;
+      function CodigoEmpresa: string; overload;
       function BaseURL(const Value: string): IDaoPedidoItens; overload;
       function BaseURL: String; overload;
-      function GetPedidoItens(aToken, aEmpresa: String): TObjectList<TPedidoItens>;
+      function GetPedidoItens(aToken : String): TObjectList<TPedidoItens>;
       function PostPedido(aValue: TPedidoItens; aToken: String): String;
   end;
 
@@ -57,13 +62,23 @@ begin
   FCodigoPedido := aValue;
 end;
 
+function TDaoPedidoItens.CodigoEmpresa: string;
+begin
+  Result := FCodigoEmpresa;
+end;
+
+function TDaoPedidoItens.CodigoEmpresa(const aValue: string): IDaoPedidoItens;
+begin
+  Result := Self;
+  FCodigoEmpresa := aValue;
+end;
+
 function TDaoPedidoItens.CodigoPedido: string;
 begin
   Result := FCodigoPedido;
 end;
 
-function TDaoPedidoItens.GetPedidoItens(aToken,
-  aEmpresa: String): TObjectList<TPedidoItens>;
+function TDaoPedidoItens.GetPedidoItens(aToken : String): TObjectList<TPedidoItens>;
 var
   FConfigurarRest : TConfiguraRest;
   ja : TJSONArray;
@@ -72,7 +87,7 @@ var
   i: Integer;
 begin
   FConfigurarRest := TConfiguraRest.create;
-  FConfigurarRest.BaseURL := BaseURL + '/' + aEmpresa + '/' + FCodigoPedido;
+  FConfigurarRest.BaseURL := BaseURL + '/pedidoitem' + '/' + CodigoEmpresa + '/' + FCodigoPedido;
   with FConfigurarRest do
   begin
     ConfigurarRest(rmGET);

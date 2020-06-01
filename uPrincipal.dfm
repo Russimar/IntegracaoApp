@@ -2,8 +2,8 @@ object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
   Caption = 'Principal'
-  ClientHeight = 459
-  ClientWidth = 407
+  ClientHeight = 293
+  ClientWidth = 329
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,12 +18,13 @@ object frmPrincipal: TfrmPrincipal
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 407
+    Width = 329
     Height = 41
     Align = alTop
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 766
     object lblHost: TLabel
       Left = 20
       Top = 21
@@ -55,164 +56,97 @@ object frmPrincipal: TfrmPrincipal
       Top = 11
       Width = 126
       Height = 21
+      TabStop = False
+      Color = clBtnShadow
+      ReadOnly = True
       TabOrder = 0
-      Text = 'http://200.98.170.118'
     end
     object edtPorta: TEdit
       Left = 236
       Top = 11
       Width = 57
       Height = 21
+      TabStop = False
+      Color = clBtnShadow
+      ReadOnly = True
       TabOrder = 1
-      Text = '3333'
     end
   end
   object pnlPrincipal: TPanel
     Left = 0
     Top = 41
-    Width = 407
-    Height = 418
+    Width = 329
+    Height = 252
     Align = alClient
     TabOrder = 1
-    object gridDados: TStringGrid
-      Left = 1
-      Top = 42
-      Width = 405
-      Height = 288
-      Align = alClient
-      DefaultColWidth = 100
-      FixedCols = 0
-      FixedRows = 0
-      TabOrder = 0
-      RowHeights = (
-        24
-        24
-        24
-        24
-        24)
-    end
+    ExplicitWidth = 766
+    ExplicitHeight = 433
     object pnlBotton: TPanel
       Left = 1
-      Top = 330
-      Width = 405
+      Top = 164
+      Width = 327
       Height = 87
       Align = alBottom
       Color = clMoneyGreen
       ParentBackground = False
-      TabOrder = 1
+      TabOrder = 0
+      ExplicitLeft = 0
+      ExplicitTop = 351
+      ExplicitWidth = 764
       object Gauge1: TGauge
         Left = 1
         Top = 58
-        Width = 403
+        Width = 325
         Height = 28
         Align = alBottom
         Progress = 0
         ExplicitTop = 75
         ExplicitWidth = 377
       end
-      object btnConsultaProduto: TBitBtn
-        Left = 2
-        Top = 1
-        Width = 101
-        Height = 29
-        Caption = 'Consulta Produto'
-        TabOrder = 0
-        OnClick = btnConsultaProdutoClick
-      end
-      object btnGravarProduto: TBitBtn
-        Left = 2
-        Top = 28
-        Width = 101
-        Height = 29
-        Caption = 'Gravar Produto'
-        TabOrder = 1
-        OnClick = btnGravarProdutoClick
-      end
-      object btnGravarSubGrupo: TBitBtn
-        Left = 200
-        Top = 28
-        Width = 101
-        Height = 29
-        Caption = 'Gravar SubGrupo'
-        TabOrder = 2
-        OnClick = btnGravarSubGrupoClick
-      end
-      object BitBtn3: TBitBtn
-        Left = 200
-        Top = 1
-        Width = 101
-        Height = 29
-        Caption = 'Consulta SubGrupo'
-        TabOrder = 3
-        OnClick = BitBtn3Click
-      end
-      object btnGravarGrupo: TBitBtn
-        Left = 101
-        Top = 28
-        Width = 101
-        Height = 29
-        Caption = 'Gravar Grupo'
-        TabOrder = 4
-        OnClick = btnGravarGrupoClick
-      end
-      object btnBuscarGrupo: TBitBtn
-        Left = 101
-        Top = 1
-        Width = 101
-        Height = 29
-        Caption = 'Consulta Grupo'
-        TabOrder = 5
-        OnClick = btnBuscarGrupoClick
-      end
-      object btnEnviarImagem: TBitBtn
-        Left = 299
-        Top = 1
-        Width = 101
-        Height = 29
-        Caption = 'Enviar Imagem'
-        TabOrder = 6
-        OnClick = btnEnviarImagemClick
-      end
-      object btnConsultaPedido: TBitBtn
-        Left = 299
-        Top = 28
-        Width = 101
-        Height = 29
-        Caption = 'Consulta Pedido'
-        TabOrder = 7
-        OnClick = btnConsultaPedidoClick
+      object lblMensagem: TLabel
+        Left = 19
+        Top = 24
+        Width = 148
+        Height = 16
+        Caption = 'Aguardando novo ciclo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clNavy
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
     end
     object pnlDados: TPanel
       Left = 1
       Top = 1
-      Width = 405
+      Width = 327
       Height = 41
       Align = alTop
       Color = clMoneyGreen
       ParentBackground = False
-      TabOrder = 2
+      TabOrder = 1
+      ExplicitWidth = 764
       object lblDocumento: TLabel
-        Left = 199
+        Left = 19
         Top = 22
         Width = 58
         Height = 13
         Caption = 'Documento:'
       end
-      object Label2: TLabel
-        Left = 7
-        Top = 22
-        Width = 42
+      object lblCodigo: TLabel
+        Left = 19
+        Top = 5
+        Width = 37
         Height = 13
-        Caption = 'Produto:'
-      end
-      object edtProduto: TEdit
-        Left = 55
-        Top = 14
-        Width = 78
-        Height = 21
-        TabOrder = 0
+        Caption = 'Codigo:'
       end
     end
+  end
+  object Timer1: TTimer
+    Interval = 5000
+    OnTimer = Timer1Timer
+    Left = 241
+    Top = 50
   end
 end

@@ -14,7 +14,7 @@ type
     function CodigoEmpresa: string; overload;
     function BaseURL(const Value: string): IDaoPedido; overload;
     function BaseURL: String; overload;
-    function GetPedido(aToken, aEmpresa: String): TObjectList<TPedido>;
+    function GetPedido(aToken: String): TObjectList<TPedido>;
     function PostPedido(aValue: TPedido; aToken: String): String;
   end;
 
@@ -31,7 +31,7 @@ type
     function CodigoEmpresa: string; overload;
     function BaseURL(const Value: string): IDaoPedido; overload;
     function BaseURL: String; overload;
-    function GetPedido(aToken, aEmpresa: String): TObjectList<TPedido>;
+    function GetPedido(aToken: String): TObjectList<TPedido>;
     function PostPedido(aValue: TPedido; aToken: String): String;
   end;
 
@@ -77,7 +77,7 @@ begin
   FCodigoPedido := aValue;
 end;
 
-function TDaoPedido.GetPedido(aToken, aEmpresa: String): TObjectList<TPedido>;
+function TDaoPedido.GetPedido(aToken: String): TObjectList<TPedido>;
 var
   FConfigurarRest : TConfiguraRest;
   ja : TJSONArray;
@@ -86,8 +86,7 @@ var
   i: Integer;
 begin
   FConfigurarRest := TConfiguraRest.create;
-  if FEmpresa <> EmptyStr then
-    FConfigurarRest.BaseURL := BaseURL + '/A';
+  FConfigurarRest.BaseURL := BaseURL + '/pedido/A';
   with FConfigurarRest do
   begin
     ConfigurarRest(rmGET);
@@ -107,6 +106,8 @@ begin
     aPedido.clienteBairro := Pedido.GetValue('clienteBairro').Value;
     aPedido.clienteEndereco := Pedido.GetValue('clienteEndereco').Value;
     aPedido.clienteNumero := Pedido.GetValue('clienteNumero').Value;
+    aPedido.clienteTelefone := Pedido.GetValue('clienteTelefone').Value;
+    aPedido.clienteCep := Pedido.GetValue('clienteCep').Value;
     aPedido.clienteUf := Pedido.GetValue('clienteUf').Value;
     aPedido.nomeEmpresa := Pedido.GetValue('nomeEmpresa').Value;
     aPedido.tipoEntrega := Pedido.GetValue('tipoEntrega').Value;

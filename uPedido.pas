@@ -21,6 +21,8 @@ type
     FclienteNumero: String;
     FcodigoEmpresa: integer;
     Fobservacoes: string;
+    FTelefone: String;
+    FCep: String;
 
    public
      Constructor create;
@@ -32,6 +34,8 @@ type
      property clienteEndereco : String read FclienteEndereco write FclienteEndereco;
      property clienteNumero : String read FclienteNumero write FclienteNumero;
      property clienteUf : String read FclienteUf write FclienteUf;
+     property clienteTelefone : String read FTelefone write FTelefone;
+     property clienteCep : String read FCep write FCep;
      property nomeEmpresa : String read FnomeEmpresa write FnomeEmpresa;
      property tipoEntrega : String read FtipoEntrega write FtipoEntrega;
      property dataEntrega : String read FdataEntrega write FdataEntrega;

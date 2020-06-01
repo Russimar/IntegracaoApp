@@ -16,7 +16,8 @@ uses
   uPedido in 'uPedido.pas',
   uDaoPedido in 'uDaoPedido.pas',
   uPedidoItens in 'uPedidoItens.pas',
-  uDaoPedidoItens in 'uDaoPedidoItens.pas';
+  uDaoPedidoItens in 'uDaoPedidoItens.pas',
+  uEmpresa in 'uEmpresa.pas';
 
 {$R *.res}
 
