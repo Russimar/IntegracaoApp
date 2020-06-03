@@ -87,32 +87,36 @@ var
   i: Integer;
 begin
   FConfigurarRest := TConfiguraRest.create;
-  FConfigurarRest.BaseURL := BaseURL + '/pedidoitem' + '/' + CodigoEmpresa + '/' + FCodigoPedido;
-  with FConfigurarRest do
-  begin
-    ConfigurarRest(rmGET);
-    CreateParam(RESTRequest, 'token', aToken, pkGETorPOST);
-    RESTRequest.Execute;
-    ja := TJsonObject.ParseJSONValue(RESTResponse.JSONText) as TJSONArray;
+  try
+    FConfigurarRest.BaseURL := BaseURL + '/pedidoitem' + '/' + CodigoEmpresa + '/' + FCodigoPedido;
+    with FConfigurarRest do
+    begin
+      ConfigurarRest(rmGET);
+      CreateParam(RESTRequest, 'token', aToken, pkGETorPOST);
+      RESTRequest.Execute;
+      ja := TJsonObject.ParseJSONValue(RESTResponse.JSONText) as TJSONArray;
+    end;
+    PedidoItens := TJSONObject.Create;
+    ListaPedidoItens := TObjectList<TPedidoItens>.Create;
+    for i := 0 to Pred(ja.Count) do
+    begin
+      PedidoItens := ja.Get(i) as TJSONObject;
+      aPedidoItens := TPedidoItens.Create;
+      aPedidoItens.empresa := StrToInt(PedidoItens.GetValue('empresa').Value);
+      aPedidoItens.pedido := StrToInt(PedidoItens.GetValue('pedido').Value);
+      aPedidoItens.item := StrToInt(PedidoItens.GetValue('item').Value);
+      aPedidoItens.codigoProduto :=  StrToIntDef(PedidoItens.GetValue('codigoProduto').Value,0);
+      aPedidoItens.descProd := PedidoItens.GetValue('descProd').Value;
+      aPedidoItens.quantidade :=  StrToFloat(PedidoItens.GetValue('quantidade').Value);
+      aPedidoItens.valorUnidade := StrToFloat(PedidoItens.GetValue('valorUnidade').Value);
+      aPedidoItens.unidade := PedidoItens.GetValue('unidade').Value;
+      ListaPedidoItens.Add(aPedidoItens);
+    end;
+    Result := ListaPedidoItens;
+    ja.Free;
+  finally
+    FConfigurarRest.Free;
   end;
-  PedidoItens := TJSONObject.Create;
-  ListaPedidoItens := TObjectList<TPedidoItens>.Create;
-  for i := 0 to Pred(ja.Count) do
-  begin
-    PedidoItens := ja.Get(i) as TJSONObject;
-    aPedidoItens := TPedidoItens.Create;
-    aPedidoItens.empresa := StrToInt(PedidoItens.GetValue('empresa').Value);
-    aPedidoItens.pedido := StrToInt(PedidoItens.GetValue('pedido').Value);
-    aPedidoItens.item := StrToInt(PedidoItens.GetValue('item').Value);
-    aPedidoItens.codigoProduto :=  StrToIntDef(PedidoItens.GetValue('codigoProduto').Value,0);
-    aPedidoItens.descProd := PedidoItens.GetValue('descProd').Value;
-    aPedidoItens.quantidade :=  StrToFloat(PedidoItens.GetValue('quantidade').Value);
-    aPedidoItens.valorUnidade := StrToFloat(PedidoItens.GetValue('valorUnidade').Value);
-    aPedidoItens.unidade := PedidoItens.GetValue('unidade').Value;
-    ListaPedidoItens.Add(aPedidoItens);
-  end;
-  Result := ListaPedidoItens;
-  ja.Free;
 end;
 
 class function TDaoPedidoItens.New: IDaoPedidoItens;

@@ -129,6 +129,10 @@
         <DCCReference Include="uPedidoItens.pas"/>
         <DCCReference Include="uDaoPedidoItens.pas"/>
         <DCCReference Include="uEmpresa.pas"/>
+        <DCCReference Include="uNumerario.pas"/>
+        <DCCReference Include="uDAONumerario.pas"/>
+        <DCCReference Include="uDAOPedidoNumerario.pas"/>
+        <DCCReference Include="uPedidoNumerario.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

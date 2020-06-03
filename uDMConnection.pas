@@ -7,7 +7,7 @@ uses
   FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait, FireDAC.Comp.Client, FireDAC.Phys.FB, FireDAC.Phys.FBDef,
   Dialogs, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
-  FireDAC.Comp.DataSet, Data.DB, uEmpresa;
+  FireDAC.Comp.DataSet, Data.DB, uEmpresa, uDAONumerario, UITypes;
 
 type
   tEvMensagem = procedure(Mensagem : String) of Object;
@@ -54,11 +54,13 @@ type
     function Enviar_Grupo : Boolean;
     function Enviar_Produto : Boolean;
     function Enviar_Imagem : Boolean;
+    function Enviar_Numerario : Boolean;
     function Abre_Tabela(xSql : String) : Boolean;
     function Obtem_Codigo_Empresa : Boolean;
     function Abre_Empresa : Boolean;
     function GetPedido : Boolean;
     function GetCodigoEmpresa : Boolean;
+    function PutPedidoStatus : Boolean;
 
     property evMsg : tEvMensagem read FevMsg write FevMsg;
     property Msg : String read FMsg write SetMsg;
@@ -66,6 +68,7 @@ type
     property Posicao : Integer read FPosicao write setPosicao;
     property evNumMax : tEvNumeroMax read FevNumMaximo write FevNumMaximo;
     property NumMax : Integer read FNumMaximo write setNumMaximo;
+    procedure MensagemPadrao;
   end;
 
 var
@@ -76,7 +79,8 @@ implementation
 uses
   uToken, uDAOProduto, uProduto, System.Generics.Collections, System.IniFiles,
   uUtilPadrao, uDAOGrupo, uGrupo, uDaoSubGrupo, uSubGrupo, MaskUtils, uDaoPedido,
-  uPedido, uPedidoItens, uDaoPedidoItens, Vcl.Forms;
+  uPedido, uPedidoItens, uDaoPedidoItens, Vcl.Forms, uNumerario, uPedidoNumerario,
+  uDaoPedidoNumerario;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
@@ -194,6 +198,7 @@ function TDMConnection.desconectar: boolean;
 begin
   FDConnection.Connected := False;
   FDConnection.Connected := False;
+  Result := True;
 end;
 
 function TDMConnection.Enviar_Grupo: Boolean;
@@ -222,6 +227,7 @@ begin
       FDConnection.ExecSQL(xSql);
       sqlConsulta.Next;
     end;
+    Result := True;
   end;
 end;
 
@@ -232,6 +238,47 @@ begin
   GravarImagem;
 //  if not GravarImagem then
 //    MessageDlg('Imagem não enviada',mtInformation,[mbOK],0);
+end;
+
+function TDMConnection.Enviar_Numerario: Boolean;
+var
+  xSql : String;
+  aNumerario : TNumerario;
+  i : Integer;
+begin
+  xSql := 'Select * from NUMERARIOAPP_LOG';
+  if Abre_Tabela(xSql) then
+  begin
+    NumMax := sqlConsulta.RecordCount;
+    while not sqlConsulta.Eof do
+    begin
+      Msg := 'Enviando Numerario nº: ' + sqlConsulta.FieldByName('ID_NUMERARIO').AsString;
+      Inc(i);
+      Posicao := i;
+      aNumerario := TNumerario.Create;
+      try
+        aNumerario.codigoNumerario := sqlConsulta.FieldByName('ID_NUMERARIO').Value;
+        aNumerario.descricao := trim(sqlConsulta.FieldByName('DESCRICAO').Value);
+        aNumerario.sigla := sqlConsulta.FieldByName('SIGLA').Value;
+        aNumerario.status := sqlConsulta.FieldByName('STATUS').Value;
+    //      aNumerario.tipo := sqlConsulta.FieldByName('TIPO').Value;
+        try
+          TDAONumerario
+           .New
+           .BaseURL(Rota)
+           .PostNumerario(Token, aNumerario);
+        finally
+          FreeAndNil(aNumerario);
+        end;
+        xSql := 'Delete from NUMERARIOAPP_LOG WHERE ID_NUMERARIO = ' + sqlConsulta.FieldByName('ID_NUMERARIO').AsString;
+        FDConnection.ExecSQL(xSql);
+      finally
+        aNumerario.Free;
+      end;
+      sqlConsulta.Next;
+    end;
+  end;
+
 end;
 
 function TDMConnection.Enviar_Produto: Boolean;
@@ -270,6 +317,7 @@ begin
       sqlConsulta.Next;
     end;
   end;
+  Result := True;
 end;
 
 function TDMConnection.Enviar_SubGrupo: Boolean;
@@ -301,16 +349,22 @@ begin
       FDConnection.ExecSQL(xSql);
       sqlConsulta.Next;
     end;
+    Result := True;
   end;
 end;
 
 function TDMConnection.GetCodigoEmpresa: Boolean;
 begin
-  CodigoEmpresa := TEmpresa
-                    .New
-                    .BaseURL(Rota)
-                    .Documento(Documento)
-                    .GetCodigo(token);
+  try
+    CodigoEmpresa := TEmpresa
+                      .New
+                      .BaseURL(Rota)
+                      .Documento(Documento)
+                      .GetCodigo(token);
+    Result := True                  
+  except
+    Result := False;
+  end;
 end;
 
 function TDMConnection.GravarImagem : Boolean;
@@ -362,13 +416,26 @@ begin
   end;
 end;
 
+procedure TDMConnection.MensagemPadrao;
+begin
+  Msg := 'Aguardando novo ciclo';
+  Posicao := 0;
+  NumMax := 100;
+end;
+
 function TDMConnection.Obtem_Codigo_Empresa: Boolean;
 begin
-  CodigoEmpresa := TEmpresa
-                     .New
-                     .BaseURL(Rota)
-                     .Documento(Documento)
-                     .GetCodigo(Token);
+  try
+    CodigoEmpresa := TEmpresa
+                       .New
+                       .BaseURL(Rota)
+                       .Documento(Documento)
+                       .GetCodigo(Token);
+    Result := True;
+  except
+    Result := False
+  end;
+  
 end;
 
 function TDMConnection.Obtem_Token: Boolean;
@@ -387,6 +454,29 @@ begin
       Result := False;
     end;
   end;
+end;
+
+function TDMConnection.PutPedidoStatus: Boolean;
+var
+  xSql : String;
+begin
+  xSql := 'SELECT * FROM PEDIDOVENDAAPP_LOG ';
+  if Abre_Tabela(xSql) then
+  begin
+    while not sqlConsulta.Eof do
+    begin
+      TDaoPedido
+        .New
+        .BaseURL(Rota)
+        .CodigoPedido(IntToStr(sqlConsulta.FieldByName('ID_PEDIDOAPP').AsInteger))
+        .CodPedidoRetorno(sqlConsulta.FieldByName('ID_PEDIDO').AsString)
+        .Status(sqlConsulta.FieldByName('STATUS').AsString)
+        .PutPedido(Token);
+      FDConnection.ExecSQL('delete from PEDIDOVENDAAPP_LOG where id_pedido= ' + sqlConsulta.FieldByName('ID_PEDIDO').AsString);
+      sqlConsulta.Next;
+    end;
+  end;
+  Result := True;
 end;
 
 procedure TDMConnection.SetMsg(const Value: String);
@@ -410,17 +500,20 @@ end;
 function TDMConnection.GetPedido: Boolean;
 var
   ListaPedido : TObjectList<TPedido>;
+  ListaPedidoItem : TObjectList<TPedidoItens>;
+  ListaPedidoNumerario : TObjectList<TPedidoNumerario>;
   aPedido : TPedido;
+  aPedidoItem : TPedidoItens;
+  aPedidoNumerario : TPedidoNumerario;
   i : integer;
-  xInsert : String;
-  CodigoCliente : String;
-  Fone : String;
+  CodigoCliente, CodigoPedido, Fone : String;
 begin
   ListaPedido := TDaoPedido
                    .New
                    .BaseURL(Rota)
                    .GetPedido(Token);
   NumMax := ListaPedido.Count;
+  i := 0;
   for aPedido in ListaPedido do
   begin
     Inc(i);
@@ -432,27 +525,86 @@ begin
     Fone := StringReplace(Fone,' ','',[rfReplaceAll]);
     Fone := StringReplace(Fone,'-','',[rfReplaceAll]);
 
+    //Gravar Cliente
     StoredProc.Close;
     StoredProc.StoredProcName := 'SP_INCLUI_CLIENTE_APP';
-    StoredProc.Params[0].Value := aPedido.clienteCpf;
-    StoredProc.Params[1].Value := Terminal;
-    StoredProc.Params[2].Value := aPedido.clienteNome;
-    StoredProc.Params[3].Value := trim(aPedido.clienteEndereco) + ' ' + trim(aPedido.clienteNumero);
-    StoredProc.Params[4].Value := aPedido.clienteBairro;
-    StoredProc.Params[5].Value := aPedido.clienteUf;
-    StoredProc.Params[6].Value := Fone;
-    StoredProc.Params[7].Value := StringReplace(aPedido.clienteCep,'-','',[rfReplaceAll]);
-    StoredProc.Params[8].Value := ConverteAcentos(aPedido.clienteCidade);
-    StoredProc.Params[9].Value := IntToStr(ID_Empresa);
-    StoredProc.ExecProc;
-    CodigoCliente := StoredProc.FieldByName('CODIGO_CLIENTE').AsString;
+    StoredProc.Prepare;
+    StoredProc.ParamByName('CPF').Value := aPedido.clienteCpf;
+    StoredProc.ParamByName('TERMINAL').Value := Terminal;
+    StoredProc.ParamByName('NOME').Value := aPedido.clienteNome;
+    StoredProc.ParamByName('ENDERECO').Value := trim(aPedido.clienteEndereco) + ' ' + trim(aPedido.clienteNumero);
+    StoredProc.ParamByName('BAIRRO').Value := aPedido.clienteBairro;
+    StoredProc.ParamByName('UF').Value := aPedido.clienteUf;
+    StoredProc.ParamByName('FONE').Value := Fone;
+    StoredProc.ParamByName('CEP').Value := StringReplace(aPedido.clienteCep,'-','',[rfReplaceAll]);
+    StoredProc.ParamByName('CIDADE').Value := ConverteAcentos(aPedido.clienteCidade);
+    StoredProc.ParamByName('CODIGOEMPRESA').Value := IntToStr(ID_Empresa);
+    StoredProc.Execute;
+    CodigoCliente := StoredProc.ParamByName('CODIGO_CLIENTE').AsString;
 
-    TDaoPedidoItens
+    //Gravar Pedido
+    StoredProc.Close;
+    StoredProc.StoredProcName := 'SP_INCLUI_PEDIDO_APP';
+    StoredProc.Prepare;
+    StoredProc.ParamByName('CODIGOEMPRESA').Value := ID_Empresa;
+    StoredProc.ParamByName('TERMINAL').Value := Terminal;
+    StoredProc.ParamByName('DATAEMISSAO').Value := aPedido.dataEmissao;
+    StoredProc.ParamByName('VALOR').Value := aPedido.valor;
+    StoredProc.ParamByName('VALORFRETE').Value := aPedido.valorfrete;
+    StoredProc.ParamByName('DATAENTREGA').Value := aPedido.dataEntrega;
+    StoredProc.ParamByName('CODIGOCLIENTE').Value := CodigoCliente;
+    StoredProc.ParamByName('CODIGOAPP').Value := aPedido.codigoPedido;
+    StoredProc.ParamByName('VALORPAGO').Value := aPedido.valorPagar;
+    StoredProc.Execute;
+    CodigoPedido := StoredProc.ParamByName('CODIGOPEDIDO').AsString;
+    if CodigoPedido <> EmptyStr then
+    begin
+      //Gravar Pedido item
+      ListaPedidoItem :=  TDaoPedidoItens
+                          .New
+                          .CodigoPedido(IntToStr(aPedido.codigoPedido))
+                          .CodigoEmpresa(CodigoEmpresa)
+                          .BaseURL(Rota)
+                          .GetPedidoItens(Token);
+      for aPedidoItem in ListaPedidoItem do
+      begin
+        StoredProc.Close;
+        StoredProc.StoredProcName := 'SP_INCLUI_PEDIDOITEM_APP';
+        StoredProc.Prepare;
+        StoredProc.ParamByName('codigoProduto').Value := aPedidoItem.codigoProduto;
+        StoredProc.ParamByName('QUANTIDADE').Value := aPedidoItem.quantidade;
+        StoredProc.ParamByName('VALOR_UNITARIO').Value := aPedidoItem.valorUnidade;
+        StoredProc.ParamByName('VALOR_TOTAL').Value := aPedidoItem.valorTotal;
+        StoredProc.ParamByName('CODIGOPEDIDO').Value := CodigoPedido;
+        StoredProc.ParamByName('ITEM').Value := aPedidoItem.item;
+        StoredProc.Execute;
+      end;
+
+      //Gravar Pedido Numerario
+      ListaPedidoNumerario :=  TDAOPedidoNumerario
+                                .New
+                                .CodigoPedido(IntToStr(aPedido.codigoPedido))
+                                .CodigoEmpresa(CodigoEmpresa)
+                                .BaseURL(Rota)
+                                .GetPedidoNumerario(Token);
+      for aPedidoNumerario in ListaPedidoNumerario do
+      begin
+        StoredProc.Close;
+        StoredProc.StoredProcName := 'SP_INCLUI_PEDIDONUMERARIO_APP';
+        StoredProc.Prepare;
+        StoredProc.ParamByName('CODIGONUMERARIO').Value := aPedidoNumerario.codigoNumerario;
+        StoredProc.ParamByName('CODIGOPEDIDO').Value := CodigoPedido;
+        StoredProc.ParamByName('ITEM').Value := aPedidoNumerario.item;
+        StoredProc.Execute;
+      end;
+    end;
+    TDaoPedido
       .New
-      .CodigoPedido(IntToStr(aPedido.codigoPedido))
-      .CodigoEmpresa(CodigoEmpresa)
       .BaseURL(Rota)
-      .GetPedidoItens(Token);
+      .CodigoPedido(IntToStr(aPedido.codigoPedido))
+      .CodPedidoRetorno(CodigoPedido)
+      .Status('R')
+      .PutPedido(Token);
   end;
 
 end;

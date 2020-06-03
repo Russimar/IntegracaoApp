@@ -68,15 +68,20 @@ var
   FConfiguraRest : TConfiguraRest;
 begin
   FConfiguraRest := TConfiguraRest.create;
-  FConfiguraRest.BaseURL := BaseUrl;
-  with FConfiguraRest do
-  begin
-    BaseURL := BaseUrl;
-    ConfigurarRest(rmPOST);
-    CreateParam(RestRequest, 'body', '{"documento":' + FDocumento + '}',pkREQUESTBODY);
-    RestRequest.Execute;
-    JSonObject := TJsonObject.ParseJSONValue(RestResponse.Content) as TJsonObject;
-    Result := JSonObject.GetValue('token').Value;
+  try
+    FConfiguraRest.BaseURL := BaseUrl;
+    with FConfiguraRest do
+    begin
+      BaseURL := BaseUrl;
+      ConfigurarRest(rmPOST);
+      CreateParam(RestRequest, 'body', '{"documento":' + FDocumento + '}',pkREQUESTBODY);
+      RestRequest.Execute;
+      JSonObject := TJsonObject.ParseJSONValue(RestResponse.Content) as TJsonObject;
+      Result := JSonObject.GetValue('token').Value;
+    end;
+  finally
+    JSonObject.Free;
+    FConfiguraRest.Free;
   end;
 end;
 

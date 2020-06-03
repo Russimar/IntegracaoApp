@@ -25,7 +25,6 @@ type
       property BaseURL : String read FBaseURL write FBaseURL;
       procedure ConfigurarRest(aParamMethod : TRESTRequestMethod);
       procedure CreateParam(const RESTRequest: TRESTRequest; const ParamName, ParamValue: string; ParamKind : TRESTRequestParameterKind);
-
   end;
 
 implementation
@@ -65,8 +64,13 @@ end;
 
 destructor TConfiguraRest.destroy;
 begin
-
   inherited;
+  if Assigned(FRestClient)  then
+    FRestClient.Free;
+  if Assigned(FRestRequest)  then
+    FRestRequest.Free;
+  if Assigned(FRestResponse)  then
+    FRestResponse.Free;
 end;
 
 end.

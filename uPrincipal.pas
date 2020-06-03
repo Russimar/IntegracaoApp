@@ -37,6 +37,8 @@ type
     procedure evMensagem(Msg : String);
     procedure evProgressao(Posicao : Integer);
     procedure evNumeroMaximo(NumMaximo : Integer);
+    procedure Iniciar_Servico;
+    procedure Fechar_Servico;
   public
     { Public declarations }
   end;
@@ -59,6 +61,12 @@ begin
   fDMConnection.GetCodigoEmpresa;
 end;
 
+procedure TfrmPrincipal.Fechar_Servico;
+begin
+  fDMConnection.desconectar;
+  FreeAndNil(fDMConnection);
+end;
+
 procedure TfrmPrincipal.evMensagem(Msg: String);
 begin
   lblMensagem.Caption := Msg;
@@ -69,6 +77,29 @@ procedure TfrmPrincipal.evNumeroMaximo(NumMaximo: Integer);
 begin
   Gauge1.MinValue := 0;
   Gauge1.MaxValue := NumMaximo;
+end;
+
+procedure TfrmPrincipal.Iniciar_Servico;
+begin
+  fDMConnection := TDMConnection.Create(nil);
+  fDMConnection.ConfiguraConexao;
+  if fDMConnection.conectar then
+  begin
+    if not fDMConnection.Abre_Empresa then
+    begin
+      Application.Terminate;
+      exit;
+    end;
+    edtHost.Text := fDMConnection.url;
+    edtPorta.Text := fDMConnection.porta;
+    fDMConnection.Obtem_Token;
+    fDMConnection.Obtem_Codigo_Empresa;
+  end;
+  lblDocumento.Caption := 'Documento: ' + FormatMaskText('99.999.999/9999-99;0', fDMConnection.Documento);
+  lblCodigo.Caption := 'Empresa: ' + fDMConnection.CodigoEmpresa;
+  fDMConnection.evMsg := evMensagem;
+  fDMConnection.evProgresso := evProgressao;
+  fDMConnection.evNumMax := evNumeroMaximo;
 end;
 
 procedure TfrmPrincipal.evProgressao(Posicao: Integer);
@@ -85,41 +116,27 @@ end;
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   ReportMemoryLeaksOnShutdown := DebugHook <> 0;
-  fDMConnection := TDMConnection.Create(nil);
-  fDMConnection.ConfiguraConexao;
-  if fDMConnection.conectar then
-  begin
-    if not fDMConnection.Abre_Empresa then
-    begin
-      Application.Terminate;
-      Exit;
-    end;
-    edtHost.Text := fDMConnection.url;
-    edtPorta.Text := fDMConnection.porta;
-    fDMConnection.Obtem_Token;
-    fDMConnection.Obtem_Codigo_Empresa;
-  end;
-  lblDocumento.Caption :=  lblDocumento.Caption + ' ' +  FormatMaskText('99.999.999/9999-99;0',fDMConnection.Documento);
-  lblCodigo.Caption := lblCodigo.Caption + ' ' + fDMConnection.CodigoEmpresa;
-  fDMConnection.evMsg := evMensagem;
-  fDMConnection.evProgresso := evProgressao;
-  fDMConnection.evNumMax := evNumeroMaximo;
+//  Iniciar_Servico;
 end;
 
 procedure TfrmPrincipal.Timer1Timer(Sender: TObject);
 begin
   Timer1.Enabled := False;
   try
+    Iniciar_Servico;
     with fDMConnection do
     begin
       Enviar_Grupo;
       Enviar_SubGrupo;
       Enviar_Produto;
       Enviar_Imagem;
+      Enviar_Numerario;
       GetPedido;
+      PutPedidoStatus;
+      MensagemPadrao;
     end;
-
   finally
+    Fechar_Servico;
     Timer1.Enabled := True;
   end;
 end;

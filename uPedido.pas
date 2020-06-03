@@ -8,7 +8,6 @@ type
     Fvalor: real;
     FtipoEntrega: String;
     FclienteNome: String;
-    FdataEntrega: String;
     FclienteCidade: String;
     FclienteEndereco: String;
     FnomeEmpresa: String;
@@ -23,7 +22,9 @@ type
     Fobservacoes: string;
     FTelefone: String;
     FCep: String;
-
+    Fvalorfrete: real;
+    FdataEntrega: TDateTime;
+    FvalorPagar: real;
    public
      Constructor create;
      Destructor destroy; override;
@@ -38,13 +39,15 @@ type
      property clienteCep : String read FCep write FCep;
      property nomeEmpresa : String read FnomeEmpresa write FnomeEmpresa;
      property tipoEntrega : String read FtipoEntrega write FtipoEntrega;
-     property dataEntrega : String read FdataEntrega write FdataEntrega;
+     property dataEntrega : TDateTime read FdataEntrega write FdataEntrega;
      property valor : real read Fvalor write Fvalor;
      property qtdeItens : real read FqtdeItens write FqtdeItens;
      property dataEmissao : TDateTime read FdataEmissao write FdataEmissao;
      property observacoes : string read Fobservacoes write Fobservacoes;
      property codigoEmpresa : integer read FcodigoEmpresa write FcodigoEmpresa;
      property codigoPedido : integer read FcodigoPedido write FcodigoPedido;
+     property valorfrete : real read Fvalorfrete write Fvalorfrete;
+     property valorPagar : real read FvalorPagar write FvalorPagar;
  end;
 
 implementation

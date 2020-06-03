@@ -126,14 +126,18 @@ var
   Grupo: TJsonObject;
 begin
   FConfigurarRest := TConfiguraRest.create;
-  FConfigurarRest.BaseURL := BaseURL + '?token=' + aToken;
-  with FConfigurarRest do
-  begin
-    ConfigurarRest(rmPOST);
-    Grupo := TJson.ObjectToJsonObject(aValue);
-    CreateParam(RESTRequest, 'body', Grupo.ToString, pkGETorPOST);
-    RESTRequest.Execute;
-    result := RESTResponse.JSONText;
+  try
+    FConfigurarRest.BaseURL := BaseURL + '?token=' + aToken;
+    with FConfigurarRest do
+    begin
+      ConfigurarRest(rmPOST);
+      Grupo := TJson.ObjectToJsonObject(aValue);
+      CreateParam(RESTRequest, 'body', Grupo.ToString, pkGETorPOST);
+      RESTRequest.Execute;
+      result := RESTResponse.JSONText;
+    end;
+  finally
+    FConfigurarRest.Free;
   end;
 end;
 

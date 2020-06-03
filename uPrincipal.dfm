@@ -24,7 +24,6 @@ object frmPrincipal: TfrmPrincipal
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 766
     object lblHost: TLabel
       Left = 20
       Top = 21
@@ -79,8 +78,6 @@ object frmPrincipal: TfrmPrincipal
     Height = 252
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 766
-    ExplicitHeight = 433
     object pnlBotton: TPanel
       Left = 1
       Top = 164
@@ -90,9 +87,6 @@ object frmPrincipal: TfrmPrincipal
       Color = clMoneyGreen
       ParentBackground = False
       TabOrder = 0
-      ExplicitLeft = 0
-      ExplicitTop = 351
-      ExplicitWidth = 764
       object Gauge1: TGauge
         Left = 1
         Top = 58
@@ -126,7 +120,6 @@ object frmPrincipal: TfrmPrincipal
       Color = clMoneyGreen
       ParentBackground = False
       TabOrder = 1
-      ExplicitWidth = 764
       object lblDocumento: TLabel
         Left = 19
         Top = 22
@@ -144,9 +137,9 @@ object frmPrincipal: TfrmPrincipal
     end
   end
   object Timer1: TTimer
-    Interval = 5000
+    Interval = 10000
     OnTimer = Timer1Timer
-    Left = 241
+    Left = 281
     Top = 50
   end
 end

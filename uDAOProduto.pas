@@ -135,6 +135,7 @@ begin
   end;
   Result := ListaProduto;
   ja.Free;
+  FConfigurarRest.Free;
 end;
 
 function TDaoProduto.CodigoProduto(const aValue: String): IConsultaProduto;
@@ -155,14 +156,19 @@ var
   FConfiguraRest : TConfiguraRest;
 begin
   FConfiguraRest := TConfiguraRest.create;
-  FConfiguraRest.BaseURL := BaseURL + '?token=' + aToken;
-  with FConfiguraRest do
-  begin
-    ConfigurarRest(rmPOST);
-    Produto := TJson.ObjectToJsonObject(aValue);
-    CreateParam(RESTRequest, 'body', Produto.ToString, pkGETorPOST);
-    RESTRequest.Execute;
-    result := RESTResponse.JSONText;
+  try
+    FConfiguraRest.BaseURL := BaseURL + '?token=' + aToken;
+    with FConfiguraRest do
+    begin
+      ConfigurarRest(rmPOST);
+      Produto := TJson.ObjectToJsonObject(aValue);
+      CreateParam(RESTRequest, 'body', Produto.ToString, pkGETorPOST);
+      RESTRequest.Execute;
+      result := RESTResponse.JSONText;
+    end;
+  finally
+    Produto.Free;
+    FConfiguraRest.Free;
   end;
 end;
 

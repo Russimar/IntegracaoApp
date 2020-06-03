@@ -11,7 +11,6 @@ object DMConnection: TDMConnection
       'CharacterSet=WIN1252'
       'Database=D:\Easy2Solutions\Gestao\Dados\Spader2.FDB'
       'DriverID=FB')
-    Connected = True
     LoginPrompt = False
     Left = 32
     Top = 32

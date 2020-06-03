@@ -68,20 +68,25 @@ var
   i : integer;
 begin
   FConfiguraRest := TConfiguraRest.create;
-  FConfiguraRest.BaseURL := BaseUrl  + '/empresa/' + FDocumento;
-  with FConfiguraRest do
-  begin
-    BaseURL := BaseUrl;
-    ConfigurarRest(rmGET);
-    CreateParam(RESTRequest, 'token', aToken, pkGETorPOST);
-    RestRequest.Execute;
-    ja := TJsonObject.ParseJSONValue(RESTResponse.JSONText) as TJSONArray;
-    Empresa := TJSONObject.Create;
-    for i := 0 to Pred(ja.Count) do
+  try
+    FConfiguraRest.BaseURL := BaseUrl  + '/empresa/' + FDocumento;
+    with FConfiguraRest do
     begin
-      Empresa := ja.Get(i) as TJSONObject;
-      Result := Empresa.GetValue('codigo').Value;
+      BaseURL := BaseUrl;
+      ConfigurarRest(rmGET);
+      CreateParam(RESTRequest, 'token', aToken, pkGETorPOST);
+      RestRequest.Execute;
+      ja := TJsonObject.ParseJSONValue(RESTResponse.JSONText) as TJSONArray;
+      Empresa := TJSONObject.Create;
+      for i := 0 to Pred(ja.Count) do
+      begin
+        Empresa := ja.Get(i) as TJSONObject;
+        Result := Empresa.GetValue('codigo').Value;
+      end;
     end;
+  finally
+    FConfiguraRest.Free;
+    Empresa.Free;
   end;
 end;
 

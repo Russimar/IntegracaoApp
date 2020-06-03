@@ -95,29 +95,33 @@ var
   I: Integer;
 begin
   FConfigurarRest := TConfiguraRest.create;
-  if FEmpresa <> EmptyStr then
-    FConfigurarRest.BaseURL := BaseURL + '/' + FEmpresa;
-  FConfigurarRest.BaseURL := FConfigurarRest.BaseURL + '/' + FCodigoSubGrupo + FStatus;
-  FConfigurarRest.ConfigurarRest(rmGET);
-  with FConfigurarRest do
-  begin
-    CreateParam(RESTRequest, 'token', aToken, pkGETorPOST);
-    RESTRequest.Execute;
-    SubGrupo := TJSONObject.Create;
-    ja := TJsonObject.ParseJSONValue(RESTResponse.JSONText) as TJSONArray;
-    ListaSubGrupo := TObjectList<TSubGrupo>.Create;
-    for I := 0 to Pred(ja.Count) do
+  try
+    if FEmpresa <> EmptyStr then
+      FConfigurarRest.BaseURL := BaseURL + '/' + FEmpresa;
+    FConfigurarRest.BaseURL := FConfigurarRest.BaseURL + '/' + FCodigoSubGrupo + FStatus;
+    FConfigurarRest.ConfigurarRest(rmGET);
+    with FConfigurarRest do
     begin
-      SubGrupo := ja.Get(i) as TJSONObject;
-      aSubGrupo := TSubGrupo.Create;
-      aSubGrupo.codigoGrupo := StrToInt(SubGrupo.GetValue('codigoGrupo').Value);
-      aSubGrupo.Codigo := StrToInt(SubGrupo.GetValue('codigoSubGrupo').Value);
-      aSubGrupo.descricao := SubGrupo.GetValue('descricao').Value;
-      aSubGrupo.status := SubGrupo.GetValue('status').Value;
-      aSubGrupo.empresa := StrToInt(SubGrupo.GetValue('empresa').Value);
-      ListaSubGrupo.Add(aSubGrupo);
+      CreateParam(RESTRequest, 'token', aToken, pkGETorPOST);
+      RESTRequest.Execute;
+      SubGrupo := TJSONObject.Create;
+      ja := TJsonObject.ParseJSONValue(RESTResponse.JSONText) as TJSONArray;
+      ListaSubGrupo := TObjectList<TSubGrupo>.Create;
+      for I := 0 to Pred(ja.Count) do
+      begin
+        SubGrupo := ja.Get(i) as TJSONObject;
+        aSubGrupo := TSubGrupo.Create;
+        aSubGrupo.codigoGrupo := StrToInt(SubGrupo.GetValue('codigoGrupo').Value);
+        aSubGrupo.Codigo := StrToInt(SubGrupo.GetValue('codigoSubGrupo').Value);
+        aSubGrupo.descricao := SubGrupo.GetValue('descricao').Value;
+        aSubGrupo.status := SubGrupo.GetValue('status').Value;
+        aSubGrupo.empresa := StrToInt(SubGrupo.GetValue('empresa').Value);
+        ListaSubGrupo.Add(aSubGrupo);
+      end;
+      Result := ListaSubGrupo;
     end;
-    Result := ListaSubGrupo;
+  finally
+    FConfigurarRest.Free;
   end;
 end;
 
