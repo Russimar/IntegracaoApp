@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>IntegracaoApp.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -106,33 +106,33 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="uPrincipal.pas">
+        <DCCReference Include="model\uDMConnection.pas">
+            <Form>DMConnection</Form>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="controller\ConfigurarRest.pas"/>
+        <DCCReference Include="controller\SmartPoint.pas"/>
+        <DCCReference Include="controller\uDAOGrupo.pas"/>
+        <DCCReference Include="controller\uDAONumerario.pas"/>
+        <DCCReference Include="controller\uDaoPedido.pas"/>
+        <DCCReference Include="controller\uDaoPedidoItens.pas"/>
+        <DCCReference Include="controller\uDAOPedidoNumerario.pas"/>
+        <DCCReference Include="controller\uDAOProduto.pas"/>
+        <DCCReference Include="controller\uDAOSubGrupo.pas"/>
+        <DCCReference Include="controller\uEmpresa.pas"/>
+        <DCCReference Include="controller\uGrupo.pas"/>
+        <DCCReference Include="controller\uNumerario.pas"/>
+        <DCCReference Include="controller\uPedido.pas"/>
+        <DCCReference Include="controller\uPedidoItens.pas"/>
+        <DCCReference Include="controller\uPedidoNumerario.pas"/>
+        <DCCReference Include="controller\uProduto.pas"/>
+        <DCCReference Include="controller\uSubGrupo.pas"/>
+        <DCCReference Include="controller\uToken.pas"/>
+        <DCCReference Include="controller\uUtilPadrao.pas"/>
+        <DCCReference Include="view\uPrincipal.pas">
             <Form>frmPrincipal</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="uToken.pas"/>
-        <DCCReference Include="uDAOProduto.pas"/>
-        <DCCReference Include="uProduto.pas"/>
-        <DCCReference Include="uDMConnection.pas">
-            <Form>DMConnection</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="uUtilPadrao.pas"/>
-        <DCCReference Include="uGrupo.pas"/>
-        <DCCReference Include="uDAOGrupo.pas"/>
-        <DCCReference Include="ConfigurarRest.pas"/>
-        <DCCReference Include="uSubGrupo.pas"/>
-        <DCCReference Include="uDAOSubGrupo.pas"/>
-        <DCCReference Include="uPedido.pas"/>
-        <DCCReference Include="uDaoPedido.pas"/>
-        <DCCReference Include="uPedidoItens.pas"/>
-        <DCCReference Include="uDaoPedidoItens.pas"/>
-        <DCCReference Include="uEmpresa.pas"/>
-        <DCCReference Include="uNumerario.pas"/>
-        <DCCReference Include="uDAONumerario.pas"/>
-        <DCCReference Include="uDAOPedidoNumerario.pas"/>
-        <DCCReference Include="uPedidoNumerario.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -159,6 +159,12 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
+                <DeployFile LocalName="C:\Easy2Solutions\Gestao\IntegracaoApp.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>IntegracaoApp.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="C:\Easy2Solutions\Gestao\IntegracaoApp.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>IntegracaoApp.exe</RemoteName>
