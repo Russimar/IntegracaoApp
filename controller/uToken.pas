@@ -4,18 +4,9 @@ interface
 
 uses
   REST.Client,
-  ConfigurarRest;
+  ConfigurarRest, App.Interfaces;
 
 type
-  IToken = Interface(IInterface)
-    ['{FF229F15-D991-42D8-8792-A30F00AE873A}']
-    function BaseURL(const Value: string): IToken; overload;
-    function BaseURL: String; overload;
-    function Documento(const Value: string): IToken; overload;
-    function Documento: String; overload;
-    function GerarToken: String;
-  end;
-
   TToken = class(TInterfacedObject, IToken)
   strict private
   private

@@ -3,20 +3,9 @@ unit uDaoPedidoItens;
 interface
 
 uses
-  uPedidoItens, System.Generics.Collections;
+  uPedidoItens, System.Generics.Collections, App.Interfaces;
 
 type
-  IDaoPedidoItens = Interface(IInterface)
-  ['{BFF38762-CFEF-48A5-BF38-50B86D5E43CF}']
-    function CodigoPedido(const aValue: string): IDaoPedidoItens; overload;
-    function CodigoPedido: string; overload;
-    function CodigoEmpresa(const aValue: string): IDaoPedidoItens; overload;
-    function CodigoEmpresa: string; overload;
-    function BaseURL(const Value: string): IDaoPedidoItens; overload;
-    function BaseURL: String; overload;
-    function GetPedidoItens(aToken: String): TObjectList<TPedidoItens>;
-    function PostPedido(aValue: TPedidoItens; aToken: String): String;
-  end;
 
   TDaoPedidoItens = class(TInterfacedObject, IDaoPedidoItens)
     private

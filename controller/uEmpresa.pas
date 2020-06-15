@@ -4,18 +4,9 @@ interface
 
 uses
   REST.Client,
-  ConfigurarRest;
+  ConfigurarRest, App.Interfaces;
 
 type
-  IEmpresa = Interface(IInterface)
-    ['{9125F2EE-8FD9-4DDD-AE60-C0527A01D4E9}']
-    function BaseURL(Const aValue : String) : IEmpresa; overload;
-    function BaseURL : String; overload;
-    function Documento(Const aValue : String) : IEmpresa; overload;
-    function Documento : String; overload;
-    function GetCodigo(aToken: String) : String;
-  end;
-
   TEmpresa = class(TInterfacedObject, IEmpresa)
     strict private
       FBaseUrl : String;

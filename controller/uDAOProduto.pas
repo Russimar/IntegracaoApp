@@ -7,23 +7,9 @@ uses
   uProduto,
   REST.Json,
   IdHTTP,
-  System.Generics.Collections;
+  App.Interfaces, System.Generics.Collections;
 
 type
-  IConsultaProduto = Interface(IInterface)
-    ['{9B94BFDF-A382-4A16-8040-C775C0713F60}']
-    function CodigoProduto(const Value: string): IConsultaProduto; overload;
-    function CodigoProduto: string; overload;
-    function CodigoEmpresa(const Value: string): IConsultaProduto; overload;
-    function CodigoEmpresa: string; overload;
-    function CaminhoArquivo(const aValue: string): IConsultaProduto; overload;
-    function CaminhoArquivo: string; overload;
-    function BaseURL(const Value: string): IConsultaProduto; overload;
-    function BaseURL: String; overload;
-    function GetProduto(aToken, aEmpresa: String): TObjectList<TProduto>;
-    function PostProduto(aValue : TProduto; aToken : String) : String;
-    function PostProdutoImagem(aToken : String) : String;
-  end;
 
   TDaoProduto = class(TInterfacedObject, IConsultaProduto)
   strict private

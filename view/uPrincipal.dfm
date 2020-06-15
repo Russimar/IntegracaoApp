@@ -78,7 +78,6 @@ object frmPrincipal: TfrmPrincipal
     Height = 131
     Align = alClient
     TabOrder = 1
-    ExplicitHeight = 252
     object pnlBotton: TPanel
       Left = 1
       Top = 43
@@ -88,7 +87,6 @@ object frmPrincipal: TfrmPrincipal
       Color = clMoneyGreen
       ParentBackground = False
       TabOrder = 0
-      ExplicitTop = 164
       object Gauge1: TGauge
         Left = 1
         Top = 58

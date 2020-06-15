@@ -5,20 +5,9 @@ uses
   REST.Client,
   uGrupo,
   REST.Json,
-  System.Generics.Collections;
+  System.Generics.Collections, App.Interfaces;
 
 type
-  IDAOGrupo = Interface(IInterface)
-    ['{BC07F7D9-9DB2-4780-A5C4-4D37B06CCB85}']
-    function CodigoGrupo(const Value: string): IDAOGrupo; overload;
-    function CodigoGrupo: string; overload;
-    function CodigoEmpresa(const Value: string): IDAOGrupo; overload;
-    function CodigoEmpresa: string; overload;
-    function BaseURL(const Value: string): IDAOGrupo; overload;
-    function BaseURL: String; overload;
-    function GetGrupo(aToken, aEmpresa: String): TObjectList<TGrupo>;
-    function PostGrupo(aValue : TGrupo; aToken : String) : String;
-  end;
 
   TDaoGrupo = class(TInterfacedObject, IDAOGrupo)
   strict private

@@ -5,23 +5,9 @@ uses
   REST.Client,
   uSubGrupo,
   REST.Json,
-  System.Generics.Collections;
+  System.Generics.Collections, App.Interfaces;
 
 type
-  IDAOSubGrupo = interface(IInterface)
-    ['{F177E7C9-FC1C-4BBE-919F-72C6594F9421}']
-    function CodigoSubGrupo(const Value: string): IDAOSubGrupo; overload;
-    function CodigoSubGrupo: string; overload;
-    function CodigoEmpresa(const Value: string): IDAOSubGrupo; overload;
-    function CodigoEmpresa: string; overload;
-    function Status(const Value: string): IDAOSubGrupo; overload;
-    function Status: string; overload;
-    function BaseURL(const Value: string): IDAOSubGrupo; overload;
-    function BaseURL: String; overload;
-    function GetSubGrupo(aToken, aEmpresa: String): TObjectList<TSubGrupo>;
-    function PostSubGrupo(aValue : TSubGrupo; aToken : String) : String;
-  end;
-
   TDaoSubGrupo = class(TInterfacedObject, IDAOSubGrupo)
   private
     FCodigoSubGrupo: String;

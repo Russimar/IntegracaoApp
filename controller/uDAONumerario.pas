@@ -2,17 +2,7 @@ unit uDAONumerario;
 
 interface
 uses
-  uNumerario, System.Generics.Collections;
-
-type
-  IDAONumerario = Interface(IInterface)
-    ['{D5B60924-57F9-42BB-8D33-C5331F03FAC7}']
-    function BaseUrl(const aValue : String) : IDAONumerario; overload;
-    function BaseUrl : String; overload;
-    function CodigoNumerario(const aValue : String) : IDAONumerario; overload;
-    function CodigoNumerario : String; overload;
-    function PostNumerario(aToken : String; aValue : TNumerario) : string;
-  end;
+  uNumerario, System.Generics.Collections, App.Interfaces;
 
 type
   TDAONumerario = class(TInterfacedObject, IDAONumerario)

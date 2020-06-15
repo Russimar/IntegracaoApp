@@ -3,19 +3,9 @@ unit uDAOPedidoNumerario;
 interface
 
 uses
-  uPedidoNumerario, System.Generics.Collections;
+  uPedidoNumerario, System.Generics.Collections, App.Interfaces;
 
 type
-  IDAOPedidoNumerario = Interface(IInterface)
-    ['{05A521A6-DF30-4681-B3BD-62A0C05D2FC4}']
-    function BaseUrl(const aValue : String) : IDAOPedidoNumerario; overload;
-    function BaseUrl : String; overload;
-    function CodigoPedido(const aValue : String) : IDAOPedidoNumerario; overload;
-    function CodigoPedido : String; overload;
-    function CodigoEmpresa(const aValue : String) : IDAOPedidoNumerario; overload;
-    function CodigoEmpresa : String; overload;
-    function GetPedidoNumerario(aToken: String): TObjectList<TPedidoNumerario>;
-  end;
 
   TDAOPedidoNumerario = class(TInterfacedObject, IDAOPedidoNumerario)
     strict private
