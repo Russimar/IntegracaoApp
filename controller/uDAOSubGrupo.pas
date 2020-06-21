@@ -123,11 +123,12 @@ var
   SubGrupo: TJsonObject;
 begin
   FConfigurarRest := TConfiguraRest.create;
-  FConfigurarRest.BaseURL := BaseURL + '?token=' + aToken;
+  FConfigurarRest.BaseURL := BaseURL;// + '?token=' + aToken;
   with FConfigurarRest do
   begin
     ConfigurarRest(rmPOST);
     SubGrupo := TJson.ObjectToJsonObject(aValue);
+    CreateParam(RESTRequest, 'token', aToken, pkQUERY);
     CreateParam(RESTRequest, 'body', SubGrupo.ToString, pkGETorPOST);
     RESTRequest.Execute;
     result := RESTResponse.JSONText;

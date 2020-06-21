@@ -63,6 +63,7 @@ begin
     with FConfiguraRest do
     begin
       ConfigurarRest(rmPOST);
+      CreateParam(RESTRequest, 'token', aToken, pkQUERY);
       Numerario := TJson.ObjectToJsonObject(aValue);
       CreateParam(RESTRequest, 'body', Numerario.ToString, pkGETorPOST);
       RESTRequest.Execute;

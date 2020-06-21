@@ -143,10 +143,11 @@ var
 begin
   FConfiguraRest := TConfiguraRest.create;
   try
-    FConfiguraRest.BaseURL := BaseURL + '?token=' + aToken;
+    FConfiguraRest.BaseURL := BaseURL;// + '?token=' + aToken;
     with FConfiguraRest do
     begin
       ConfigurarRest(rmPOST);
+      CreateParam(RESTRequest, 'token', aToken, pkQUERY);
       Produto := TJson.ObjectToJsonObject(aValue);
       CreateParam(RESTRequest, 'body', Produto.ToString, pkGETorPOST);
       RESTRequest.Execute;

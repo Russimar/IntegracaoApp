@@ -25,7 +25,8 @@ uses
   Winapi.Windows,
   System.SysUtils,
   System.Variants,
-  uPrincipal in 'view\uPrincipal.pas' {frmPrincipal};
+  uPrincipal in 'view\uPrincipal.pas' {frmPrincipal},
+  App.Interfaces in 'model\App.Interfaces.pas';
 
 {$R *.res}
 var

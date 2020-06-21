@@ -15,8 +15,11 @@ type
     FCodigoGrupo: String;
     FBaseURL: String;
     FEmpresa: String;
+    FListaGrupo : TObjectList<TGrupo>;
   public
     class function New: IDAOGrupo;
+    constructor create;
+    destructor Destroy; override;
     function CodigoGrupo(const aValue: String): IDAOGrupo; overload;
     function CodigoGrupo: string; overload;
     function CodigoEmpresa(const Value: string): IDAOGrupo; overload;
@@ -64,6 +67,17 @@ begin
   Result := FCodigoGrupo;
 end;
 
+constructor TDaoGrupo.create;
+begin
+  FListaGrupo := TObjectList<TGrupo>.Create;
+end;
+
+destructor TDaoGrupo.Destroy;
+begin
+  FListaGrupo.Free;
+  inherited;
+end;
+
 function TDaoGrupo.CodigoGrupo(const aValue: String): IDAOGrupo;
 begin
   Result := Self;
@@ -75,7 +89,7 @@ var
   FConfigurarRest : TConfiguraRest;
   ja : TJSONArray;
   Grupo: TJsonObject;
-  ListaGrupo : TObjectList<TGrupo>;
+//  ListaGrupo : TObjectList<TGrupo>;
   I: Integer;
 begin
   FConfigurarRest := TConfiguraRest.create;
@@ -85,11 +99,11 @@ begin
   FConfigurarRest.ConfigurarRest(rmGET);
   with FConfigurarRest do
   begin
-    CreateParam(RESTRequest, 'token', aToken, pkGETorPOST);
+    CreateParam(RESTRequest, 'token', aToken, pkQUERY);
     RESTRequest.Execute;
     Grupo := TJSONObject.Create;
     ja := TJsonObject.ParseJSONValue(RESTResponse.JSONText) as TJSONArray;
-    ListaGrupo := TObjectList<TGrupo>.Create;
+//    ListaGrupo := TObjectList<TGrupo>.Create;
     for I := 0 to Pred(ja.Count) do
     begin
       Grupo := ja.Get(i) as TJSONObject;
@@ -97,9 +111,9 @@ begin
       aGrupo.Codigo := StrToInt(Grupo.GetValue('codigo').Value);
       aGrupo.descricao := Grupo.GetValue('descricao').Value;
       aGrupo.CodigoEmpresa := Grupo.GetValue('empresa').Value;
-      ListaGrupo.Add(aGrupo);
+      FListaGrupo.Add(aGrupo);
     end;
-    Result := ListaGrupo;
+    Result := FListaGrupo;
   end;
 end;
 
@@ -116,10 +130,11 @@ var
 begin
   FConfigurarRest := TConfiguraRest.create;
   try
-    FConfigurarRest.BaseURL := BaseURL + '?token=' + aToken;
+    FConfigurarRest.BaseURL := BaseURL;// + '?token=' + aToken;
     with FConfigurarRest do
     begin
       ConfigurarRest(rmPOST);
+      CreateParam(RESTRequest, 'token', aToken, pkQUERY);
       Grupo := TJson.ObjectToJsonObject(aValue);
       CreateParam(RESTRequest, 'body', Grupo.ToString, pkGETorPOST);
       RESTRequest.Execute;
