@@ -10,7 +10,8 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.Samples.Gauges, Vcl.Grids, Vcl.ExtCtrls, uEmpresa;
+  FireDAC.Comp.Client, Vcl.Samples.Gauges, Vcl.Grids, Vcl.ExtCtrls, uEmpresa,
+  System.ImageList, Vcl.ImgList, Vcl.AppEvnts;
 
 type
   TfrmPrincipal = class(TForm)
@@ -27,10 +28,15 @@ type
     lblCodigo: TLabel;
     lblMensagem: TLabel;
     Timer1: TTimer;
+    ImageList: TImageList;
+    TrayIcon: TTrayIcon;
+    ApplicationEvents: TApplicationEvents;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure TrayIconDblClick(Sender: TObject);
+    procedure ApplicationEventsMinimize(Sender: TObject);
   private
     { Private declarations }
     fDMConnection : TDMConnection;
@@ -55,6 +61,15 @@ uses
 
 {$R *.dfm}
 { TForm1 }
+
+procedure TfrmPrincipal.ApplicationEventsMinimize(Sender: TObject);
+begin
+  Self.Hide();
+  Self.WindowState := wsMinimized;
+  TrayIcon.Visible := True;
+  TrayIcon.Animate := True;
+  TrayIcon.ShowBalloonHint;
+end;
 
 procedure TfrmPrincipal.BitBtn1Click(Sender: TObject);
 begin
@@ -128,6 +143,8 @@ begin
     Iniciar_Servico;
     with fDMConnection do
     begin
+      Enviar_ConfigFrete;
+      Enviar_Bairro;
       Enviar_Grupo;
       Enviar_SubGrupo;
       Enviar_Produto;
@@ -141,6 +158,14 @@ begin
     Fechar_Servico;
     Timer1.Enabled := True;
   end;
+end;
+
+procedure TfrmPrincipal.TrayIconDblClick(Sender: TObject);
+begin
+  TrayIcon.Visible := False;
+  Show();
+  WindowState := wsNormal;
+  Application.BringToFront();
 end;
 
 end.

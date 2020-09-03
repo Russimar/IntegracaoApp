@@ -50,11 +50,13 @@ type
     function conectar : boolean;
     function desconectar : boolean;
     function GravarImagem : Boolean;
+    function Enviar_ConfigFrete : Boolean;
     function Enviar_SubGrupo : Boolean;
     function Enviar_Grupo : Boolean;
     function Enviar_Produto : Boolean;
     function Enviar_Imagem : Boolean;
     function Enviar_Numerario : Boolean;
+    function Enviar_Bairro : Boolean;
     function Abre_Tabela(xSql : String) : Boolean;
     function Obtem_Codigo_Empresa : Boolean;
     function Abre_Empresa : Boolean;
@@ -80,7 +82,7 @@ uses
   uToken, uDAOProduto, uProduto, System.Generics.Collections, System.IniFiles,
   uUtilPadrao, uDAOGrupo, uGrupo, uDaoSubGrupo, uSubGrupo, MaskUtils, uDaoPedido,
   uPedido, uPedidoItens, uDaoPedidoItens, Vcl.Forms, uNumerario, uPedidoNumerario,
-  uDaoPedidoNumerario;
+  uDaoPedidoNumerario, uBairro, uDAOBairro, uConfiguraFrete, uDaoConfigFrete;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
@@ -201,6 +203,71 @@ begin
   Result := True;
 end;
 
+function TDMConnection.Enviar_Bairro: Boolean;
+var
+  xSql : String;
+  aBairro : TBairro;
+begin
+  xSql := 'Select * from BAIRROSATENDIDOS WHERE EMPRICOD = ' + IntToStr(ID_Empresa) + ' AND PENDENTE = ' + QuotedStr('S');
+  if Abre_Tabela(xSql) then
+  begin
+    while not sqlConsulta.Eof do
+    begin
+      aBairro := TBairro.Create;
+      aBairro.Codigo := sqlConsulta.FieldByName('CODIGO').Value;
+      aBairro.bairro := sqlConsulta.FieldByName('BAIRRO').Value;
+      aBairro.cidade := sqlConsulta.FieldByName('CIDADE').AsString;
+      aBairro.uf := sqlConsulta.FieldByName('UF').AsString;
+      aBairro.valor := sqlConsulta.FieldByName('VALOR').AsFloat;
+      aBairro.Status := sqlConsulta.FieldByName('STATUS').AsString;
+      try
+      TDAOBairro
+        .New
+        .BaseURL(Rota )
+        .PostBairro(aBairro,Token);
+      finally
+        FreeAndNil(aBairro);
+      end;
+      xSql := 'UPDATE BAIRROSATENDIDOS SET PENDENTE = ' + QuotedStr('N') + ' WHERE CODIGO = ' + sqlConsulta.FieldByName('CODIGO').AsString + ' AND EMPRICOD = ' + IntToStr(ID_Empresa);
+      FDConnection.ExecSQL(xSql);
+      sqlConsulta.Next;
+    end;
+    Result := True;
+  end;
+end;
+
+function TDMConnection.Enviar_ConfigFrete: Boolean;
+var
+  xSql : String;
+  aConfigFrete : TConfiguraFrete;
+begin
+  xSql := 'Select * from CONFIGFRETE WHERE EMPRICOD = ' + IntToStr(ID_Empresa) + ' AND PENDENTE = ' + QuotedStr('S');
+  if Abre_Tabela(xSql) then
+  begin
+    while not sqlConsulta.Eof do
+    begin
+      aConfigFrete := TConfiguraFrete.Create;
+      aConfigFrete.valorFixo := sqlConsulta.FieldByName('VALORFIXO').AsFloat;
+      aConfigFrete.valorPorKm := sqlConsulta.FieldByName('VALORPORKM').AsFloat;
+      aConfigFrete.tipoCalculo := sqlConsulta.FieldByName('TIPO_CALCULO').AsString;
+      aConfigFrete.Status := sqlConsulta.FieldByName('Status').AsString;
+      aConfigFrete.verificaFrete := 'S';
+      try
+      TDAOConfigFrete
+        .New
+        .BaseURL(Rota)
+        .PostConfigFrete(aConfigFrete,Token);
+      finally
+        FreeAndNil(aConfigFrete);
+      end;
+      xSql := 'UPDATE CONFIGFRETE SET PENDENTE = ' + QuotedStr('N') + ' WHERE CODIGO = ' + sqlConsulta.FieldByName('CODIGO').AsString + ' AND EMPRICOD = ' + IntToStr(ID_Empresa);
+      FDConnection.ExecSQL(xSql);
+      sqlConsulta.Next;
+    end;
+    Result := True;
+  end;
+end;
+
 function TDMConnection.Enviar_Grupo: Boolean;
 var
   xSql : String;
@@ -298,12 +365,15 @@ begin
       Posicao := i;
       aProduto := TProduto.Create;
       aProduto.codigoProduto := sqlConsulta.FieldByName('ID_PRODUTO').Value;
-      aProduto.descricao := StringReplace(sqlConsulta.FieldByName('DESCRICAO').Value,'''','',[rfReplaceAll]);
+      aProduto.descricao := trim(StringReplace(sqlConsulta.FieldByName('DESCRICAO').Value,'''','',[rfReplaceAll]));
       aProduto.preco := sqlConsulta.FieldByName('PRECO_VENDA').Value;
-      aProduto.marca := sqlConsulta.FieldByName('MARCA').AsString;
+      aProduto.marca := trim(sqlConsulta.FieldByName('MARCA').AsString);
       aProduto.grupo := sqlConsulta.FieldByName('ID_GRUPO').AsInteger;
-      aProduto.subGrupo := sqlConsulta.FieldByName('ID_SUBGRUPO').AsString;
-      aProduto.unidade := sqlConsulta.FieldByName('UNIDADE').AsString;
+      aProduto.subGrupo := trim(sqlConsulta.FieldByName('ID_SUBGRUPO').AsString);
+      aProduto.unidade := trim(sqlConsulta.FieldByName('UNIDADE').AsString);
+      aProduto.inicioPromocao := sqlConsulta.FieldByName('DT_INICIAL_PROMO').AsDateTime;
+      aProduto.finalPromocao := sqlConsulta.FieldByName('DT_FINAL_PROMO').AsDateTime;
+      aProduto.valorPromocao := sqlConsulta.FieldByName('PRECO_VENDA_PROMO').AsFloat;
       try
         TDaoProduto
          .New
@@ -555,6 +625,7 @@ begin
     StoredProc.ParamByName('CODIGOCLIENTE').Value := CodigoCliente;
     StoredProc.ParamByName('CODIGOAPP').Value := aPedido.codigoPedido;
     StoredProc.ParamByName('VALORPAGO').Value := aPedido.valorPagar;
+    StoredProc.ParamByName('TIPOFRETE').Value := aPedido.tipoEntrega;
     StoredProc.Execute;
     CodigoPedido := StoredProc.ParamByName('CODIGOPEDIDO').AsString;
     if CodigoPedido <> EmptyStr then

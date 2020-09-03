@@ -26,7 +26,11 @@ uses
   System.SysUtils,
   System.Variants,
   uPrincipal in 'view\uPrincipal.pas' {frmPrincipal},
-  App.Interfaces in 'model\App.Interfaces.pas';
+  App.Interfaces in 'model\App.Interfaces.pas',
+  uBairro in 'controller\uBairro.pas',
+  uDAOBairro in 'controller\uDAOBairro.pas',
+  uConfiguraFrete in 'controller\uConfiguraFrete.pas',
+  UDAOConfigFrete in 'controller\UDAOConfigFrete.pas';
 
 {$R *.res}
 var

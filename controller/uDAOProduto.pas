@@ -7,19 +7,24 @@ uses
   uProduto,
   REST.Json,
   IdHTTP,
-  App.Interfaces, System.Generics.Collections;
+  App.Interfaces, ConfigurarRest, System.Generics.Collections;
 
 type
 
   TDaoProduto = class(TInterfacedObject, IConsultaProduto)
   strict private
-  private
+  protected
     FCodigoProduto: String;
     FBaseURL: String;
     FEmpresa: String;
     FCaminhoImagem: String;
+    FConfigurarRest: TConfiguraRest;
+    FProduto: TProduto;
+    ListaProduto: TObjectList<TProduto>;
   public
     class function New: IConsultaProduto;
+    Constructor create;
+    Destructor Destroy; override;
     function CodigoProduto(const aValue: String): IConsultaProduto; overload;
     function CodigoProduto: string; overload;
     function CodigoEmpresa(const Value: string): IConsultaProduto; overload;
@@ -29,23 +34,20 @@ type
     function BaseURL(const Value: string): IConsultaProduto; overload;
     function BaseURL: String; overload;
     function GetProduto(aToken, aEmpresa: String): TObjectList<TProduto>;
-    function PostProduto(aValue : TProduto; aToken : String) : String;
-    function PostProdutoImagem(aToken : String) : String;
+    function PostProduto(aValue: TProduto; aToken: String): String;
+    function PostProdutoImagem(aToken: String): String;
   end;
 
 implementation
 
 uses
-  System.JSON,
+  System.Json,
   REST.Types,
   System.SysUtils,
   Vcl.Dialogs,
-  ConfigurarRest,
   IdMultipartFormData;
 
 { TDaoProduto }
-var
-  aProduto: TProduto;
 
 function TDaoProduto.BaseURL: String;
 begin
@@ -85,18 +87,30 @@ begin
   Result := FCodigoProduto;
 end;
 
-function TDaoProduto.GetProduto(aToken, aEmpresa: String): TObjectList<TProduto>;
-var
-  FConfigurarRest : TConfiguraRest;
-  ja : TJSONArray;
-  Produto: TJsonObject;
-  ListaProduto : TObjectList<TProduto>;
-  i: Integer;
+constructor TDaoProduto.create;
 begin
   FConfigurarRest := TConfiguraRest.create;
+  ListaProduto := TObjectList<TProduto>.create;
+end;
+
+destructor TDaoProduto.Destroy;
+begin
+  FreeAndNil(FConfigurarRest);
+  FreeAndNil(ListaProduto);
+  inherited;
+end;
+
+function TDaoProduto.GetProduto(aToken, aEmpresa: String)
+  : TObjectList<TProduto>;
+var
+  ja: TJSONArray;
+  Produto: TJsonObject;
+  i: Integer;
+begin
   if FEmpresa <> EmptyStr then
     FConfigurarRest.BaseURL := BaseURL + '/' + FEmpresa;
   FConfigurarRest.BaseURL := BaseURL + '/' + FCodigoProduto;
+
   with FConfigurarRest do
   begin
     ConfigurarRest(rmGET);
@@ -104,24 +118,30 @@ begin
     RESTRequest.Execute;
     ja := TJsonObject.ParseJSONValue(RESTResponse.JSONText) as TJSONArray;
   end;
-  Produto := TJSONObject.Create;
-  ListaProduto := TObjectList<TProduto>.Create;
-  for i := 0 to Pred(ja.Count) do
-  begin
-    Produto := ja.Get(i) as TJSONObject;
-    aProduto := TProduto.Create;
-    aProduto.codigoProduto := StrToInt(Produto.GetValue('codigoProduto').Value);
-    aProduto.descricao := Produto.GetValue('descricao').Value;
-    aProduto.preco := StrToFloat(Produto.GetValue('preco').Value);
-    aProduto.marca := Produto.GetValue('marca').Value;
-    aProduto.grupo := StrToInt(Produto.GetValue('grupo').Value);
-    aProduto.Unidade := Produto.GetValue('unidade').Value;
-    aProduto.SubGrupo := Produto.GetValue('subGrupo').Value;
-    ListaProduto.Add(aProduto);
+  Produto := TJsonObject.create;
+  try
+    for i := 0 to Pred(ja.Count) do
+    begin
+      Produto := ja.Get(i) as TJsonObject;
+      FProduto := TProduto.create;
+      try
+        FProduto.CodigoProduto := StrToInt(Produto.GetValue('codigoProduto').Value);
+        FProduto.descricao := Produto.GetValue('descricao').Value;
+        FProduto.preco := StrToFloat(Produto.GetValue('preco').Value);
+        FProduto.marca := Produto.GetValue('marca').Value;
+        FProduto.grupo := StrToInt(Produto.GetValue('grupo').Value);
+        FProduto.Unidade := Produto.GetValue('unidade').Value;
+        FProduto.SubGrupo := Produto.GetValue('subGrupo').Value;
+        ListaProduto.Add(FProduto);
+      finally
+        FreeAndNil(FProduto);
+      end;
+    end;
+    Result := ListaProduto;
+  finally
+    FreeAndNil(ja);
   end;
-  Result := ListaProduto;
-  ja.Free;
-  FConfigurarRest.Free;
+
 end;
 
 function TDaoProduto.CodigoProduto(const aValue: String): IConsultaProduto;
@@ -132,30 +152,26 @@ end;
 
 class function TDaoProduto.New: IConsultaProduto;
 begin
-  aProduto := TProduto.Create;
-  Result := Self.Create;
+  Result := Self.create;
 end;
 
-function TDaoProduto.PostProduto(aValue : TProduto; aToken : String): String;
+function TDaoProduto.PostProduto(aValue: TProduto; aToken: String): String;
 var
   Produto: TJsonObject;
-  FConfiguraRest : TConfiguraRest;
 begin
-  FConfiguraRest := TConfiguraRest.create;
   try
-    FConfiguraRest.BaseURL := BaseURL;// + '?token=' + aToken;
-    with FConfiguraRest do
+    FConfigurarRest.BaseURL := BaseURL; // + '?token=' + aToken;
+    with FConfigurarRest do
     begin
       ConfigurarRest(rmPOST);
       CreateParam(RESTRequest, 'token', aToken, pkQUERY);
       Produto := TJson.ObjectToJsonObject(aValue);
       CreateParam(RESTRequest, 'body', Produto.ToString, pkGETorPOST);
       RESTRequest.Execute;
-      result := RESTResponse.JSONText;
+      Result := RESTResponse.JSONText;
     end;
   finally
     Produto.Free;
-    FConfiguraRest.Free;
   end;
 end;
 
@@ -165,15 +181,15 @@ var
   Params: TIdMultiPartFormDataStream;
   Response: string;
 begin
-  Indy := TIdHTTP.Create;
-  Params :=  TIdMultiPartFormDataStream.Create;
+  Indy := TIdHTTP.create;
+  Params := TIdMultiPartFormDataStream.create;
   try
     try
-      Params.AddFile('file',FCaminhoImagem);
-      Response := Indy.Post(BaseURL + '?token=' + aToken , Params);
+      Params.AddFile('file', FCaminhoImagem);
+      Response := Indy.Post(BaseURL + '?token=' + aToken, Params);
     except
-      on E:Exception do
-        raise exception.Create(E.Classname + ': ' + E.Message);
+      on E: Exception do
+        raise Exception.create(E.Classname + ': ' + E.Message);
     end;
   finally
     Params.Free;

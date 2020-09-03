@@ -4,7 +4,7 @@ interface
 
 uses
   uProduto, uGrupo, uNumerario, uPedido, System.Generics.Collections,
-  uPedidoItens, uPedidoNumerario, uSubGrupo;
+  uPedidoItens, uPedidoNumerario, uSubGrupo, uBairro, uConfiguraFrete;
 
 type
   IConsultaProduto = Interface(IInterface)
@@ -113,6 +113,26 @@ type
     function Documento(const Value: string): IToken; overload;
     function Documento: String; overload;
     function GerarToken: String;
+  end;
+
+  IDAOBairro = interface(IInterface)
+    ['{F177E7C9-FC1C-4BBE-919F-72C6594F9421}']
+    function CodigoBairro(const Value: string): IDAOBairro; overload;
+    function CodigoBairro: string; overload;
+    function Status(const Value: string): IDAOBairro; overload;
+    function Status: string; overload;
+    function BaseURL(const Value: string): IDAOBairro; overload;
+    function BaseURL: String; overload;
+    function PostBairro(aValue : TBairro; aToken : String) : String;
+  end;
+
+  IDAOConfigFrete = interface(IInterface)
+    ['{F177E7C9-FC1C-4BBE-919F-72C6594F9421}']
+    function Status(const Value: string): IDAOConfigFrete; overload;
+    function Status: string; overload;
+    function BaseURL(const Value: string): IDAOConfigFrete; overload;
+    function BaseURL: String; overload;
+    function PostConfigFrete(aValue : TConfiguraFrete; aToken : String) : String;
   end;
 
 implementation

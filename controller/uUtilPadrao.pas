@@ -9,6 +9,7 @@ uses
   function GetDefaultPrinterName: string;
   procedure CopiarDataSet(Origem, Destino : TClientDataSet);
   function ConverteAcentos(Str: string): string;
+  function StringParaDate(Const value : String) : Boolean;
 
 var
  vCaminhoBanco: String;
@@ -114,6 +115,16 @@ begin
   Len := Length(Str);
   for C := 1 to Len do
     Result := Result + ConvChar(Str[C]);
+end;
+
+function StringParaDate(Const value : String) : Boolean;
+begin
+  try
+    StrToDateTime(value);
+    Result := True;
+  except
+    Result := False;
+  end;
 end;
 
 

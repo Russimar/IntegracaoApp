@@ -14,6 +14,9 @@ type
     FUnidade: String;
     FSubGrupo: String;
     FGrupo: Integer;
+    FvalorPromocao: real;
+    FinicioPromocao: TDateTime;
+    FfinalPromocao: TDateTime;
   public
     constructor Create;
     destructor Destroy; override;
@@ -25,6 +28,9 @@ type
     property Tipo: String read FTipo write FTipo;
     property unidade : String read FUnidade write FUnidade;
     property subGrupo : String read FSubGrupo write FSubGrupo;
+    property inicioPromocao : TDateTime read FinicioPromocao write FinicioPromocao;
+    property finalPromocao : TDateTime read FfinalPromocao write FfinalPromocao;
+    property valorPromocao : real read FvalorPromocao write FvalorPromocao;
   end;
 
 implementation
