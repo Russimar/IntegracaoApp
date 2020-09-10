@@ -59,7 +59,7 @@ var
 begin
   FConfiguraRest := TConfiguraRest.create;
   try
-    FConfiguraRest.BaseURL := BaseURL + '/numerario' + '?token=' + aToken;
+    FConfiguraRest.BaseURL := BaseURL + '/numerario';// + '?token=' + aToken;
     with FConfiguraRest do
     begin
       ConfigurarRest(rmPOST);

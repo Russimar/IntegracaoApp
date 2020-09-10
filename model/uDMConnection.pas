@@ -457,7 +457,7 @@ begin
       while not sqlConsultaImagem.Eof do
       begin
         ID_Produto := sqlConsultaImagem.FieldByName('ID_PRODUTO').AsInteger;
-        Path := ExtractFilePath(Application.ExeName) + '\Imagem';
+        Path := ExtractFilePath(Application.ExeName) + 'Imagem';
         NameFile := '\Prod_' + ID_Produto.ToString + '.jpg';
         if not sqlConsultaImagem.IsEmpty then
         begin
