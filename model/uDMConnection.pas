@@ -602,7 +602,8 @@ begin
     StoredProc.ParamByName('CPF').Value := aPedido.clienteCpf;
     StoredProc.ParamByName('TERMINAL').Value := Terminal;
     StoredProc.ParamByName('NOME').Value := aPedido.clienteNome;
-    StoredProc.ParamByName('ENDERECO').Value := trim(aPedido.clienteEndereco) + ' ' + trim(aPedido.clienteNumero);
+    StoredProc.ParamByName('ENDERECO').Value := trim(aPedido.clienteEndereco);
+    StoredProc.ParamByName('NUMERO_END').Value := trim(aPedido.clienteNumero);
     StoredProc.ParamByName('BAIRRO').Value := aPedido.clienteBairro;
     StoredProc.ParamByName('UF').Value := aPedido.clienteUf;
     StoredProc.ParamByName('FONE').Value := Fone;
