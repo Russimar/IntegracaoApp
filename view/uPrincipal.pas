@@ -96,7 +96,7 @@ end;
 
 procedure TfrmPrincipal.Iniciar_Servico;
 begin
-  fDMConnection := TDMConnection.Create(nil);
+ fDMConnection := TDMConnection.Create(nil);
   fDMConnection.ConfiguraConexao;
   if fDMConnection.conectar then
   begin

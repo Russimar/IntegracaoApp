@@ -132,6 +132,7 @@ begin
         FProduto.grupo := StrToInt(Produto.GetValue('grupo').Value);
         FProduto.Unidade := Produto.GetValue('unidade').Value;
         FProduto.SubGrupo := Produto.GetValue('subGrupo').Value;
+        FProduto.status := Produto.GetValue('status').Value;
         ListaProduto.Add(FProduto);
       finally
         FreeAndNil(FProduto);

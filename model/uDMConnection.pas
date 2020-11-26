@@ -374,6 +374,7 @@ begin
       aProduto.inicioPromocao := sqlConsulta.FieldByName('DT_INICIAL_PROMO').AsDateTime;
       aProduto.finalPromocao := sqlConsulta.FieldByName('DT_FINAL_PROMO').AsDateTime;
       aProduto.valorPromocao := sqlConsulta.FieldByName('PRECO_VENDA_PROMO').AsFloat;
+      aProduto.status := sqlConsulta.FieldByName('STATUS').AsString;
       try
         TDaoProduto
          .New
@@ -450,7 +451,7 @@ begin
   try
     sqlConsultaImagem.Close;
     sqlConsultaImagem.SQL.Clear;
-    sqlConsultaImagem.SQL.Add('SELECT ID_PRODUTO, IMAGEM FROM PRODUTO_IMAGEM WHERE STATUS = :STATUS');
+    sqlConsultaImagem.SQL.Add('SELECT ID_PRODUTO, IMAGEM FROM PRODUTO_IMAGEM WHERE STATUS = :STATUS and IMAGEM is not null');
     sqlConsultaImagem.ParamByName('STATUS').AsString := 'P';
     sqlConsultaImagem.Open;
     begin

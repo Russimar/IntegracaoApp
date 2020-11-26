@@ -17,6 +17,8 @@ type
     FvalorPromocao: real;
     FinicioPromocao: TDateTime;
     FfinalPromocao: TDateTime;
+    Fstatus: string;
+
   public
     constructor Create;
     destructor Destroy; override;
@@ -31,6 +33,7 @@ type
     property inicioPromocao : TDateTime read FinicioPromocao write FinicioPromocao;
     property finalPromocao : TDateTime read FfinalPromocao write FfinalPromocao;
     property valorPromocao : real read FvalorPromocao write FvalorPromocao;
+    property status : string read Fstatus write Fstatus;
   end;
 
 implementation

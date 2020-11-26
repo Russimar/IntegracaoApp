@@ -4,7 +4,10 @@ interface
 
 uses
   REST.Client,
-  ConfigurarRest, App.Interfaces;
+  ConfigurarRest,
+  App.Interfaces,
+  REST.Json,
+  System.Json;
 
 type
   TToken = class(TInterfacedObject, IToken)
@@ -12,8 +15,11 @@ type
   private
     FBaseUrl: String;
     FDocumento: String;
-
+    FTokenJson: TJSONObject;
+    FConfiguraRest: TConfiguraRest;
   public
+    constructor create;
+    destructor destroy; override;
     class function New: IToken;
     function BaseURL(const Value: string): IToken; overload;
     function BaseURL: String; overload;
@@ -22,11 +28,17 @@ type
     function GerarToken: String;
   end;
 
+  TObjToken = class
+  private
+    FDocumento: String;
+  public
+    property Documento: String read FDocumento write FDocumento;
+  end;
+
 implementation
 
 uses
-  REST.Types, System.Classes, System.JSON.Readers, System.SysUtils,
-  System.JSON;
+  REST.Types, System.Classes, System.Json.Readers, System.SysUtils;
 
 { TToken }
 
@@ -39,6 +51,17 @@ end;
 function TToken.BaseURL: String;
 begin
   Result := FBaseUrl;
+end;
+
+constructor TToken.create;
+begin
+  FConfiguraRest := TConfiguraRest.create;
+end;
+
+destructor TToken.destroy;
+begin
+//  FConfiguraRest.Free;
+  inherited;
 end;
 
 function TToken.Documento: String;
@@ -54,25 +77,32 @@ end;
 
 function TToken.GerarToken: String;
 var
+  aToken: TObjToken;
   FBaseUrl: String;
-  JSonObject: TJsonObject;
-  FConfiguraRest : TConfiguraRest;
+  TokenObject: TJSONObject;
 begin
-  FConfiguraRest := TConfiguraRest.create;
-  try
-    FConfiguraRest.BaseURL := BaseUrl;
-    with FConfiguraRest do
-    begin
-      BaseURL := BaseUrl;
+  FConfiguraRest.BaseURL := BaseURL;
+  with FConfiguraRest do
+  begin
+    aToken := TObjToken.Create;
+    try
+      aToken.Documento := FDocumento;
+      BaseURL := BaseURL;
       ConfigurarRest(rmPOST);
-      CreateParam(RestRequest, 'body', '{"documento":' + FDocumento + '}',pkREQUESTBODY);
-      RestRequest.Execute;
-      JSonObject := TJsonObject.ParseJSONValue(RestResponse.Content) as TJsonObject;
-      Result := JSonObject.GetValue('token').Value;
+      TokenObject := TJson.ObjectToJsonObject(aToken);
+      CreateParam(RESTRequest, 'body', TokenObject.ToString, pkGETorPOST);
+      RESTRequest.Execute;
+      FTokenJson := TJSONObject.Create;
+      try
+        FTokenJson := RESTResponse.JSONValue as TJSONObject;
+        Result := FTokenJson.GetValue('token').Value
+      finally
+        FreeAndNil(FTokenJson);
+      end;
+    finally
+      TokenObject.Free;
     end;
-  finally
-    JSonObject.Free;
-    FConfiguraRest.Free;
+
   end;
 end;
 
